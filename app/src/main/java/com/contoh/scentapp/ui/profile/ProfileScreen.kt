@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.contoh.scentapp.MainActivity
 import com.contoh.scentapp.R
 import com.contoh.scentapp.data.repository.SessionManager
@@ -111,19 +115,39 @@ fun ProfileScreen(
                         .padding(horizontal = 20.dp, vertical = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // ✅ FIX: Tampilkan foto profil jika ada, fallback ke icon Person
                     Box(
                         modifier = Modifier
                             .size(90.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(if (isDarkMode) MaterialTheme.colorScheme.secondaryContainer else Color(0xFFE9ECEF)),
+                            .background(
+                                if (isDarkMode) MaterialTheme.colorScheme.secondaryContainer
+                                else Color(0xFFE9ECEF)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector        = Icons.Default.Person,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                            modifier           = Modifier.size(48.dp)
-                        )
+                        val profileImageUrl = uiState.profileImageUrl
+
+                        if (profileImageUrl.isNotBlank()) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(profileImageUrl)
+                                    .crossfade(true)
+                                    .diskCachePolicy(CachePolicy.DISABLED)
+                                    .memoryCachePolicy(CachePolicy.DISABLED)
+                                    .build(),
+                                contentDescription = "Foto profil",
+                                contentScale       = ContentScale.Crop,
+                                modifier           = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Icon(
+                                imageVector        = Icons.Default.Person,
+                                contentDescription = null,
+                                tint               = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                                modifier           = Modifier.size(48.dp)
+                            )
+                        }
                     }
                     Spacer(Modifier.width(16.dp))
                     Column {

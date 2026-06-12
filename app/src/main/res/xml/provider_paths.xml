@@ -2,4 +2,5 @@
 <paths>
     <cache-path name="scent_photos" path="." />
     <external-files-path name="scent_external" path="." />
+    <cache-path name="camera_photos" path="." />
 </paths>

@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.contoh.scentapp.ui.theme.*
 
@@ -47,7 +48,6 @@ fun AccountDetailScreen(
     )
 ) {
     val uiState             by viewModel.uiState.collectAsStateWithLifecycle()
-    // ✅ BARU: Observe state update password & visibility dari ViewModel
     val updatePasswordState by viewModel.updatePasswordState.collectAsStateWithLifecycle()
 
     var name            by rememberSaveable { mutableStateOf("") }
@@ -55,11 +55,11 @@ fun AccountDetailScreen(
     var address         by rememberSaveable { mutableStateOf("") }
     var photoUri        by rememberSaveable { mutableStateOf<Uri?>(null) }
     var showPhotoDialog by remember { mutableStateOf(false) }
-    // ✅ UBAH: showResetDialog → showUpdatePasswordDialog
     var showUpdatePasswordDialog by remember { mutableStateOf(false) }
 
-    // ✅ BARU: Tutup dialog otomatis saat password berhasil diubah
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Tutup dialog otomatis saat password berhasil diubah
     LaunchedEffect(updatePasswordState) {
         if (updatePasswordState is UpdatePasswordState.Success) {
             showUpdatePasswordDialog = false
@@ -69,9 +69,18 @@ fun AccountDetailScreen(
     }
 
     // Sync dari Firestore saat data loaded
-    LaunchedEffect(uiState.fullName, uiState.email) {
+    LaunchedEffect(key1 = uiState.fullName, key2 = uiState.email) {
         if (uiState.fullName.isNotBlank()) name  = uiState.fullName
         if (uiState.email.isNotBlank())    email = uiState.email
+    }
+
+    // ✅ FIX: Navigasi balik HANYA setelah upload + Firestore selesai
+    val profileUpdateSuccess by viewModel.profileUpdateSuccess.collectAsStateWithLifecycle()
+    LaunchedEffect(profileUpdateSuccess) {
+        if (profileUpdateSuccess) {
+            viewModel.resetProfileUpdateSuccess()
+            onBack()
+        }
     }
 
     val listState = rememberLazyListState()
@@ -81,13 +90,17 @@ fun AccountDetailScreen(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? -> uri?.let { photoUri = it } }
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicturePreview()
-    ) { _ -> }
+    // ✅ FIX: rememberSaveable agar URI tidak hilang saat recomposition
+    var cameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
-    // ✅ BARU: Scaffold untuk SnackbarHost
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) cameraUri?.let { photoUri = it }
+    }
+
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost   = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Box(
@@ -149,10 +162,16 @@ fun AccountDetailScreen(
                             ) {
                                 val imageData = photoUri
                                     ?: uiState.profileImageUrl.takeIf { it.isNotBlank() }
+
                                 if (imageData != null) {
                                     AsyncImage(
-                                        model              = ImageRequest.Builder(context)
-                                            .data(imageData).crossfade(true).build(),
+                                        model = ImageRequest.Builder(context)
+                                            .data(imageData)
+                                            .crossfade(true)
+                                            // ✅ FIX: Nonaktifkan cache agar foto baru selalu tampil
+                                            .diskCachePolicy(CachePolicy.DISABLED)
+                                            .memoryCachePolicy(CachePolicy.DISABLED)
+                                            .build(),
                                         contentDescription = "Foto profil",
                                         contentScale       = ContentScale.Crop,
                                         modifier           = Modifier.fillMaxSize()
@@ -226,8 +245,7 @@ fun AccountDetailScreen(
                     )
                 }
 
-                // ── Password dengan Show/Hide ─────────────────────────────────
-                // ── Password dengan Show/Hide ─────────────────────────────────
+                // ── Password ──────────────────────────────────────────────────
                 item(key = "password") {
                     Row(
                         modifier = Modifier
@@ -236,7 +254,6 @@ fun AccountDetailScreen(
                         verticalAlignment     = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        // Kolom kiri: label + nilai password
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text  = "PASSWORD",
@@ -248,7 +265,7 @@ fun AccountDetailScreen(
                             )
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                text  = "••••••••••••",   // ✅ selalu bullet, hapus kondisi if
+                                text  = "••••••••••••",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     color      = MaterialTheme.colorScheme.onBackground,
                                     fontSize   = 18.sp,
@@ -256,8 +273,6 @@ fun AccountDetailScreen(
                                 )
                             )
                         }
-
-                        // Kolom kanan: HANYA tombol GANTI, hapus IconButton show/hide
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
@@ -357,9 +372,13 @@ fun AccountDetailScreen(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
                         .background(MaterialTheme.colorScheme.onBackground)
+                        // ✅ FIX: onBack() DIHAPUS — navigasi dihandle LaunchedEffect
                         .clickable {
-                            viewModel.updateProfile(fullName = name, email = email)
-                            onBack()
+                            viewModel.updateProfileWithPhoto(
+                                fullName = name,
+                                email    = email,
+                                photoUri = photoUri
+                            )
                         }
                         .padding(vertical = 18.dp),
                     contentAlignment = Alignment.Center
@@ -379,7 +398,6 @@ fun AccountDetailScreen(
     }
 
     // ── Dialog Update Password ────────────────────────────────────────────
-    // ✅ UBAH: Dari dialog kirim email → dialog input password langsung
     if (showUpdatePasswordDialog) {
         UpdatePasswordDialog(
             updatePasswordState = updatePasswordState,
@@ -430,7 +448,14 @@ fun AccountDetailScreen(
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                             .clickable {
                                 showPhotoDialog = false
-                                cameraLauncher.launch(null)
+                                val file = java.io.File(context.cacheDir, "camera_${System.currentTimeMillis()}.jpg")
+                                val uri = androidx.core.content.FileProvider.getUriForFile(
+                                    context,
+                                    "${context.packageName}.provider",
+                                    file
+                                )
+                                cameraUri = uri
+                                cameraLauncher.launch(uri)
                             }
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -471,8 +496,6 @@ fun AccountDetailScreen(
 }
 
 // ── Dialog Update Password ─────────────────────────────────────────────────────
-// ✅ BARU: Composable dialog dengan 3 field + masing-masing show/hide
-
 @Composable
 private fun UpdatePasswordDialog(
     updatePasswordState : UpdatePasswordState,
@@ -504,23 +527,21 @@ private fun UpdatePasswordDialog(
                 modifier            = Modifier.fillMaxWidth()
             ) {
                 PasswordInputField(
-                    label       = "Password Saat Ini",
-                    value       = currentPassword,
+                    label         = "Password Saat Ini",
+                    value         = currentPassword,
                     onValueChange = { currentPassword = it },
-                    isVisible   = showCurrentPassword,
-                    onToggle    = { showCurrentPassword = !showCurrentPassword },
-                    enabled     = !isLoading
+                    isVisible     = showCurrentPassword,
+                    onToggle      = { showCurrentPassword = !showCurrentPassword },
+                    enabled       = !isLoading
                 )
-
                 PasswordInputField(
-                    label       = "Password Baru",
-                    value       = newPassword,
+                    label         = "Password Baru",
+                    value         = newPassword,
                     onValueChange = { newPassword = it },
-                    isVisible   = showNewPassword,
-                    onToggle    = { showNewPassword = !showNewPassword },
-                    enabled     = !isLoading
+                    isVisible     = showNewPassword,
+                    onToggle      = { showNewPassword = !showNewPassword },
+                    enabled       = !isLoading
                 )
-
                 PasswordInputField(
                     label         = "Konfirmasi Password Baru",
                     value         = confirmPassword,
@@ -531,8 +552,6 @@ private fun UpdatePasswordDialog(
                     errorMessage  = "Password tidak cocok",
                     enabled       = !isLoading
                 )
-
-                // ── Pesan error dari ViewModel ────────────────────────────
                 if (updatePasswordState is UpdatePasswordState.Error) {
                     Text(
                         text  = updatePasswordState.message,
@@ -540,8 +559,6 @@ private fun UpdatePasswordDialog(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-
-                // ── Loading bar ───────────────────────────────────────────
                 if (isLoading) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
@@ -552,8 +569,8 @@ private fun UpdatePasswordDialog(
         },
         confirmButton = {
             TextButton(
-                onClick  = { onConfirm(currentPassword, newPassword, confirmPassword) },
-                enabled  = !isLoading
+                onClick = { onConfirm(currentPassword, newPassword, confirmPassword) },
+                enabled = !isLoading
             ) {
                 Text(
                     text  = "SIMPAN",
@@ -610,10 +627,9 @@ private fun PasswordInputField(
         trailingIcon  = {
             IconButton(onClick = onToggle, enabled = enabled) {
                 Icon(
-                    imageVector = if (isVisible) Icons.Default.VisibilityOff
-                    else Icons.Default.Visibility,
+                    imageVector        = if (isVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                     contentDescription = if (isVisible) "Sembunyikan" else "Tampilkan",
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                    tint               = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
                 )
             }
         },

@@ -1,23 +1,26 @@
 package com.contoh.scentapp.ui.profile
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.contoh.scentapp.data.model.ProfileUiState
+import com.contoh.scentapp.data.remote.CloudinaryUploader
 import com.contoh.scentapp.data.repository.AuthRepositoryImpl
 import com.contoh.scentapp.data.repository.LanguageManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
-// ✅ BARU: Sealed class untuk state update password
 sealed class UpdatePasswordState {
     object Idle    : UpdatePasswordState()
     object Loading : UpdatePasswordState()
@@ -39,9 +42,12 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     )
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    // ✅ BARU: State untuk proses update password
     private val _updatePasswordState = MutableStateFlow<UpdatePasswordState>(UpdatePasswordState.Idle)
     val updatePasswordState: StateFlow<UpdatePasswordState> = _updatePasswordState.asStateFlow()
+
+    // ✅ BARU: State untuk sinyal navigasi balik setelah simpan profil berhasil
+    private val _profileUpdateSuccess = MutableStateFlow(false)
+    val profileUpdateSuccess: StateFlow<Boolean> = _profileUpdateSuccess.asStateFlow()
 
     init {
         loadCurrentUser()
@@ -66,19 +72,48 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     }
 
     // ── Update profil ke Firestore ─────────────────────────────────────────
-    fun updateProfile(fullName: String, email: String) {
+    fun updateProfileWithPhoto(fullName: String, email: String, photoUri: Uri?) {
         viewModelScope.launch {
             try {
                 val uid = authRepository.currentUserId ?: return@launch
+
+                val imageUrl = if (photoUri != null) {
+                    withContext(Dispatchers.IO) {
+                        CloudinaryUploader.upload(getApplication(), photoUri).getOrNull()
+                    }
+                } else null
+
+                val updates = mutableMapOf<String, Any>(
+                    "fullName" to fullName,
+                    "email"    to email
+                )
+                if (imageUrl != null) updates["profileImageUrl"] = imageUrl
+
                 firestore.collection("users").document(uid)
-                    .update(mapOf("fullName" to fullName, "email" to email))
+                    .update(updates)
                     .await()
-                _uiState.update { it.copy(fullName = fullName, email = email) }
+
+                _uiState.update {
+                    it.copy(
+                        fullName        = fullName,
+                        email           = email,
+                        profileImageUrl = imageUrl ?: it.profileImageUrl
+                    )
+                }
+
+                // ✅ BARU: Emit sukses setelah semua selesai
+                _profileUpdateSuccess.value = true
+
             } catch (e: Exception) { }
         }
     }
 
-    // ✅ BARU: Update password langsung (ganti sendPasswordReset)
+    // ✅ BARU: Reset setelah Screen menangkap event sukses
+    fun resetProfileUpdateSuccess() {
+        _profileUpdateSuccess.value = false
+    }
+
+    // ── Update password langsung ───────────────────────────────────────────
     fun updatePassword(currentPassword: String, newPassword: String, confirmPassword: String) {
         if (currentPassword.isBlank() || newPassword.isBlank() || confirmPassword.isBlank()) {
             _updatePasswordState.value = UpdatePasswordState.Error("Semua field harus diisi")
@@ -104,7 +139,6 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 UpdatePasswordState.Success
             } else {
                 val msg = result.exceptionOrNull()?.message ?: "Gagal mengubah password"
-                // Pesan Firebase lebih ramah
                 val friendlyMsg = when {
                     msg.contains("wrong-password", ignoreCase = true) ||
                             msg.contains("invalid-credential", ignoreCase = true) ->
@@ -118,11 +152,9 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    // ✅ BARU: Reset state setelah dialog ditutup
     fun resetUpdatePasswordState() {
         _updatePasswordState.value = UpdatePasswordState.Idle
     }
-
 
     fun refreshUser() { loadCurrentUser() }
 
