@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ScentApp</string>
+
+    <!-- General -->
+    <string name="back">Back</string>
+    <string name="menu">Menu</string>
+    <string name="search">Search</string>
+    <string name="favorite">Favorite</string>
+
+    <!-- Bottom Nav -->
+    <string name="nav_home">HOME</string>
+    <string name="nav_favorite">FAVORITE</string>
+    <string name="nav_cart">CART</string>
+    <string name="nav_profile">PROFILE</string>
+
+    <!-- Language Screen -->
+    <string name="language_title">LANGUAGE</string>
+    <string name="interface_preferences">INTERFACE PREFERENCES</string>
+    <string name="select_language">Select your preferred language</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_account">ACCOUNT</string>
+    <string name="profile_logout">Logout</string>
+    <string name="profile_edit">EDIT PROFILE</string>
+    <string name="profile_personal_info">PERSONAL INFORMATION</string>
+    <string name="profile_account_detail">Account Detail</string>
+    <string name="profile_address">Shipping Address</string>
+    <string name="profile_orders">My Orders</string>
+    <string name="profile_preferences">APP PREFERENCES</string>
+    <string name="profile_language">Language</string>
+    <string name="profile_dark_mode">Dark Mode</string>
+    <string name="profile_sales">Sales</string>
+    <string name="profile_delete_account">DELETE ACCOUNT</string>
+    <string name="profile_delete_confirm">Are you sure you want to delete your account? This action cannot be undone.</string>
+    <string name="profile_delete_confirm_btn">DELETE</string>
+    <string name="profile_delete_cancel_btn">CANCEL</string>
+
+    <!-- Home Screen -->
+    <string name="search_hint">Search your scent...</string>
+    <string name="home_collection_label">CURATED</string>
+    <string name="home_collection_title">Our Collection</string>
+
+    <!-- Favorite Screen -->
+    <string name="favorite_title">Your Curation.</string>
+    <string name="favorite_subtitle">A curated selection of fragrances that reflect your personal identity and character.</string>
+    <string name="favorite_empty">Empty Favorites</string>
+    <string name="favorite_empty_desc">Tap the icon on a perfume\nto save it here</string>
+    <string name="favorite_remove">Remove from favorites</string>
+
+    <!-- Cart Screen -->
+    <string name="cart_title">MY SELECTIONS</string>
+    <string name="cart_subtotal">SUBTOTAL</string>
+    <string name="cart_shipping">ATELIER SHIPPING</string>
+    <string name="cart_shipping_free">FREE</string>
+    <string name="cart_total">ESTIMATED TOTAL</string>
+    <string name="cart_set_shipping">SET SHIPPING</string>
+    <string name="cart_continue">CONTINUE SHOPPING</string>
+    <string name="cart_delete">Delete</string>
+</resources>

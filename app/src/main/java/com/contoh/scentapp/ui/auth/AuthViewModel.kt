@@ -1,0 +1,162 @@
+package com.contoh.scentapp.ui.auth
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.contoh.scentapp.data.model.AuthUiState
+import com.contoh.scentapp.data.repository.AuthRepositoryImpl
+import com.contoh.scentapp.data.repository.SessionManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val authRepository = AuthRepositoryImpl.getInstance()
+    private val sessionManager = SessionManager.getInstance(application)
+
+    private val _uiState = MutableStateFlow(AuthUiState())
+    val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+
+    // ── Login field handlers ───────────────────────────────────────────────
+    fun onLoginEmailChange(value: String) {
+        _uiState.update { it.copy(loginEmail = value, errorMessage = null) }
+    }
+    fun onLoginPasswordChange(value: String) {
+        _uiState.update { it.copy(loginPassword = value, errorMessage = null) }
+    }
+    fun toggleLoginPasswordVisibility() {
+        _uiState.update { it.copy(showLoginPass = !it.showLoginPass) }
+    }
+
+    // ── Register field handlers ────────────────────────────────────────────
+    fun onRegisterNameChange(value: String) {
+        _uiState.update { it.copy(registerName = value, errorMessage = null) }
+    }
+    fun onRegisterEmailChange(value: String) {
+        _uiState.update { it.copy(registerEmail = value, errorMessage = null) }
+    }
+    fun onRegisterPasswordChange(value: String) {
+        _uiState.update { it.copy(registerPassword = value, errorMessage = null) }
+    }
+    // FIX: fungsi ini sebelumnya tidak ada — ditambahkan agar RegisterScreen bisa toggle show/hide password
+    fun toggleRegisterPasswordVisibility() {
+        _uiState.update { it.copy(showRegisterPass = !it.showRegisterPass) }
+    }
+
+    // ── Login dengan Firebase ──────────────────────────────────────────────
+    fun login(onSuccess: () -> Unit) {
+        val state = _uiState.value
+        if (state.loginEmail.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Email tidak boleh kosong") }
+            return
+        }
+        if (state.loginPassword.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Kata sandi tidak boleh kosong") }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            try {
+                val result = authRepository.login(state.loginEmail, state.loginPassword)
+                result.onSuccess { user ->
+                    sessionManager.saveSession(email = user.email)
+                    _uiState.update { it.copy(isLoading = false, isLoggedIn = true) }
+                    onSuccess()
+                }
+                result.onFailure { e ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading    = false,
+                            errorMessage = e.message ?: "Login gagal"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading    = false,
+                        errorMessage = e.message ?: "Login gagal"
+                    )
+                }
+            }
+        }
+    }
+
+    // ── Register dengan Firebase ───────────────────────────────────────────
+    fun register(onSuccess: () -> Unit) {
+        val state = _uiState.value
+        if (state.registerName.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Nama tidak boleh kosong") }
+            return
+        }
+        if (state.registerEmail.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Email tidak boleh kosong") }
+            return
+        }
+        if (state.registerPassword.length < 6) {
+            _uiState.update { it.copy(errorMessage = "Kata sandi minimal 6 karakter") }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            try {
+                val result = authRepository.register(
+                    email    = state.registerEmail,
+                    password = state.registerPassword,
+                    fullName = state.registerName
+                )
+                result.onSuccess { user ->
+                    sessionManager.saveSession(email = user.email)
+                    _uiState.update { it.copy(isLoading = false, isLoggedIn = true) }
+                    onSuccess()
+                }
+                result.onFailure { e ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading    = false,
+                            errorMessage = e.message ?: "Registrasi gagal"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading    = false,
+                        errorMessage = e.message ?: "Registrasi gagal"
+                    )
+                }
+            }
+        }
+    }
+
+    // ── Logout ─────────────────────────────────────────────────────────────
+    fun logout() {
+        viewModelScope.launch {
+            authRepository.logout()
+            sessionManager.clearSession()
+            _uiState.update { AuthUiState() }
+        }
+    }
+
+    // ── Clear error ────────────────────────────────────────────────────────
+    fun clearError() {
+        _uiState.update { it.copy(errorMessage = null) }
+    }
+}
+
+class AuthViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
+            return AuthViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

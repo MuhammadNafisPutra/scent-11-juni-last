@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ScentApp</string>
+
+    <!-- General -->
+    <string name="back">Kembali</string>
+    <string name="menu">Menu</string>
+    <string name="search">Cari</string>
+    <string name="favorite">Favorit</string>
+
+    <!-- Bottom Nav -->
+    <string name="nav_home">BERANDA</string>
+    <string name="nav_favorite">FAVORIT</string>
+    <string name="nav_cart">KERANJANG</string>
+    <string name="nav_profile">PROFIL</string>
+
+    <!-- Language Screen -->
+    <string name="language_title">BAHASA</string>
+    <string name="interface_preferences">PREFERENSI ANTARMUKA</string>
+    <string name="select_language">Pilih bahasa yang kamu inginkan</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_account">AKUN</string>
+    <string name="profile_logout">Keluar</string>
+    <string name="profile_edit">EDIT PROFIL</string>
+    <string name="profile_personal_info">INFORMASI PRIBADI</string>
+    <string name="profile_account_detail">Detail Akun</string>
+    <string name="profile_address">Alamat Pengiriman</string>
+    <string name="profile_orders">Pesanan Saya</string>
+    <string name="profile_preferences">PREFERENSI APLIKASI</string>
+    <string name="profile_language">Bahasa</string>
+    <string name="profile_dark_mode">Mode Gelap</string>
+    <string name="profile_sales">Penjualan</string>
+    <string name="profile_delete_account">HAPUS AKUN</string>
+    <string name="profile_delete_confirm">Apakah kamu yakin ingin menghapus akun? Tindakan ini tidak dapat dibatalkan.</string>
+    <string name="profile_delete_confirm_btn">HAPUS</string>
+    <string name="profile_delete_cancel_btn">BATAL</string>
+
+    <!-- Home Screen -->
+    <string name="search_hint">Cari esens Anda...</string>
+    <string name="home_collection_label">KURASI</string>
+    <string name="home_collection_title">Koleksi Kami</string>
+
+    <!-- Favorite Screen -->
+    <string name="favorite_title">Kurasi Anda.</string>
+    <string name="favorite_subtitle">Koleksi wewangian terpilih yang mencerminkan identitas dan karakter personal Anda.</string>
+    <string name="favorite_empty">Koleksi Favorit Kosong</string>
+    <string name="favorite_empty_desc">Tekan ikon pada parfum\nuntuk menyimpannya di sini</string>
+    <string name="favorite_remove">Hapus dari favorit</string>
+
+    <!-- Cart Screen -->
+    <string name="cart_title">PILIHAN SAYA</string>
+    <string name="cart_subtotal">SUBTOTAL</string>
+    <string name="cart_shipping">PENGIRIMAN ATELIER</string>
+    <string name="cart_shipping_free">GRATIS</string>
+    <string name="cart_total">ESTIMASI TOTAL</string>
+    <string name="cart_set_shipping">MENGATUR PENGIRIMAN</string>
+    <string name="cart_continue">LANJUT BELANJA</string>
+    <string name="cart_delete">Hapus</string>
+</resources>

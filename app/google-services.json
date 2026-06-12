@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "348931537955",
+    "project_id": "scent-da87d",
+    "storage_bucket": "scent-da87d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:348931537955:android:e9af78fa69192cded60596",
+        "android_client_info": {
+          "package_name": "com.contoh.scentapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDf2CLiqRexsB6pByVFUN04QjfIPFmgAhM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
