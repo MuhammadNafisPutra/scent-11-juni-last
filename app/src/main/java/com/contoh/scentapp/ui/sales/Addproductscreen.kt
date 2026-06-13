@@ -46,17 +46,27 @@ private val usageOptions  = listOf("SIANG", "MALAM", "KEDUANYA")
 private val bankOptions   = listOf("BCA", "BNI", "BRI", "Mandiri", "BSI", "Permata", "CIMB Niaga", "Lainnya")
 private val walletOptions = listOf("GoPay", "OVO", "DANA", "ShopeePay", "LinkAja", "Lainnya")
 
+/**
+ * [firestoreId] = null  → mode TAMBAH PRODUK BARU
+ * [firestoreId] = "xyz" → mode EDIT, form akan di-prefill dengan data produk
+ */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AddProductScreen(
-    onBack      : () -> Unit         = {},
-    viewModel   : AddProductViewModel = viewModel()
+    onBack       : () -> Unit             = {},
+    firestoreId  : String?                = null,
+    viewModel    : AddProductViewModel    = viewModel(
+        factory = AddProductViewModelFactory(firestoreId)
+    )
 ) {
-    val context     = LocalContext.current
-    val state       by viewModel.state.collectAsStateWithLifecycle()
-    val scrollState = rememberScrollState()
+    val context        = LocalContext.current
+    val state          by viewModel.state.collectAsStateWithLifecycle()
+    val existingParfum by viewModel.existingParfum.collectAsStateWithLifecycle()
+    val scrollState    = rememberScrollState()
 
-    // Form state
+    val isEditMode = firestoreId != null
+
+    // ── Form state ─────────────────────────────────────────────────────────
     var namaParfum       by rememberSaveable { mutableStateOf("") }
     var brandParfum      by rememberSaveable { mutableStateOf("") }
     var deskripsi        by rememberSaveable { mutableStateOf("") }
@@ -66,6 +76,7 @@ fun AddProductScreen(
     var selectedAroma    by rememberSaveable { mutableStateOf("Woody") }
     var jumlahStok       by rememberSaveable { mutableStateOf("") }
     var selectedSize     by rememberSaveable { mutableStateOf("50") }
+    var selectedUsage    by rememberSaveable { mutableStateOf("SIANG") }
     val aromaChips       = remember { mutableStateListOf("OUD", "BERGAMOT") }
     var newChipInput     by rememberSaveable { mutableStateOf("") }
     var showChipInput    by rememberSaveable { mutableStateOf(false) }
@@ -80,6 +91,32 @@ fun AddProductScreen(
     var nomorWallet      by rememberSaveable { mutableStateOf("") }
     var selectedWallet   by rememberSaveable { mutableStateOf("") }
     var cameraUri        by remember { mutableStateOf<Uri?>(null) }
+
+    // Tandai apakah form sudah di-prefill dari data existing
+    var prefilled by rememberSaveable { mutableStateOf(false) }
+
+    // ── Prefill form saat mode Edit dan data sudah di-load ─────────────────
+    LaunchedEffect(existingParfum) {
+        val p = existingParfum
+        if (isEditMode && p != null && !prefilled) {
+            namaParfum    = p.name
+            brandParfum   = p.brand
+            deskripsi     = p.description
+            hargaPenuh    = p.price.toString()
+            hargaDecant   = if (p.decantPrice > 0) p.decantPrice.toString() else ""
+            isDecantAvail = p.isDecantAvailable
+            selectedAroma = p.olfactoryFamily.ifBlank { "Woody" }
+            jumlahStok    = p.stock.toString()
+            selectedSize  = (p.sizes.firstOrNull() ?: 50).toString()
+            selectedUsage = p.usage.ifBlank { "SIANG" }
+            if (p.imageUrl.isNotBlank()) imageUri = p.imageUrl
+            if (p.topNotes.isNotEmpty()) {
+                aromaChips.clear()
+                aromaChips.addAll(p.topNotes)
+            }
+            prefilled = true
+        }
+    }
 
     // Kembali otomatis saat sukses
     LaunchedEffect(state) {
@@ -99,7 +136,7 @@ fun AddProductScreen(
         ActivityResultContracts.TakePicture()
     ) { success -> if (success) cameraUri?.let { imageUri = it.toString() } }
 
-    // ── TAMBAHAN: Permission launcher untuk kamera ─────────────────────────
+    // Permission launcher untuk kamera
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -111,7 +148,6 @@ fun AddProductScreen(
             cameraUri = uri
             cameraLauncher.launch(uri)
         }
-        // Kalau ditolak, tidak crash — diam saja
     }
 
     fun launchCamera() {
@@ -152,7 +188,6 @@ fun AddProductScreen(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
                             .background(MaterialTheme.colorScheme.secondaryContainer)
-                            // ── PERUBAHAN: pakai launchCamera() yang sudah wrap permission ──
                             .clickable { showPhotoDialog = false; launchCamera() }
                             .padding(16.dp),
                         verticalAlignment     = Alignment.CenterVertically,
@@ -175,7 +210,7 @@ fun AddProductScreen(
         )
     }
 
-    // Error Snackbar
+    // Error Dialog
     if (state is AddProductState.Error) {
         val message = (state as AddProductState.Error).message
         AlertDialog(
@@ -192,6 +227,17 @@ fun AddProductScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+
+        // Loading overlay saat data edit sedang dimuat
+        if (isEditMode && !prefilled && state is AddProductState.Loading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = ScentGold)
+            }
+            return@Box
+        }
 
         Column(
             modifier = Modifier
@@ -219,7 +265,11 @@ fun AddProductScreen(
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("MANAJEMEN INVENTARIS", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 2.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(6.dp))
-                Text("Tambah Produk Baru", style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold, fontSize = 26.sp), color = MaterialTheme.colorScheme.onBackground)
+                Text(
+                    if (isEditMode) "Edit Produk" else "Tambah Produk Baru",
+                    style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold, fontSize = 26.sp),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
 
             // ── Upload Foto ───────────────────────────────────────────────────
@@ -305,7 +355,7 @@ fun AddProductScreen(
                             cursorBrush = SolidColor(ScentGold), singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                             decorationBox = { inner ->
-                                if (hargaPenuh.isEmpty()) Text("250.000", style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 16.sp))
+                                if (hargaPenuh.isEmpty()) Text("250000", style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 16.sp))
                                 inner()
                             }
                         )
@@ -354,7 +404,7 @@ fun AddProductScreen(
                                 cursorBrush = SolidColor(ScentGold), singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 decorationBox = { inner ->
-                                    if (hargaDecant.isEmpty()) Text("25.000", style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 16.sp))
+                                    if (hargaDecant.isEmpty()) Text("25000", style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 16.sp))
                                     inner()
                                 }
                             )
@@ -449,6 +499,47 @@ fun AddProductScreen(
                 }
             }
 
+
+            // ── Waktu Penggunaan ──────────────────────────────────────────────
+            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                Text("WAKTU PENGGUNAAN", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
+                Spacer(Modifier.height(4.dp))
+                Text("Parfum ini paling cocok digunakan di waktu", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 11.sp))
+                Spacer(Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    usageOptions.forEach { option ->
+                        val isSelected = option == selectedUsage
+                        val emoji = when (option) {
+                            "SIANG"    -> "\u2600\uFE0F"
+                            "MALAM"    -> "\uD83C\uDF19"
+                            "KEDUANYA" -> "\u2726"
+                            else       -> ""
+                        }
+                        Box(
+                            modifier = Modifier.weight(1f).clip(RoundedCornerShape(8.dp))
+                                .background(if (isSelected) ScentGold.copy(alpha = 0.15f) else Color.Transparent)
+                                .border(1.dp, if (isSelected) ScentGold else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+                                .clickable { selectedUsage = option }
+                                .padding(vertical = 14.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(emoji, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                                Text(
+                                    option,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize      = 9.sp,
+                                        letterSpacing = 1.sp,
+                                        fontWeight    = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        color         = if (isSelected) ScentGold else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             Spacer(Modifier.height(8.dp))
         }
 
@@ -473,7 +564,15 @@ fun AddProductScreen(
                         }
                     )
                     .clickable(enabled = isFormValid && !isLoading) {
+                        val newImageUri = imageUri?.let { uriStr ->
+                            // Hanya kirim sebagai Uri baru jika bukan URL http (bukan URL lama)
+                            if (!uriStr.startsWith("http")) Uri.parse(uriStr) else null
+                        }
+                        val existingUrl = existingParfum?.imageUrl ?: ""
+
                         val parfum = Parfum(
+                            id               = existingParfum?.id ?: "",
+                            sellerId         = existingParfum?.sellerId ?: "",
                             name             = namaParfum,
                             brand            = brandParfum,
                             price            = hargaPenuh.replace(".", "").replace(",", "").toLongOrNull() ?: 0L,
@@ -483,13 +582,25 @@ fun AddProductScreen(
                             olfactoryFamily  = selectedAroma,
                             topNotes         = aromaChips.toList(),
                             sizes            = listOf(selectedSize.toIntOrNull() ?: 50),
-                            isDecantAvailable = isDecantAvail
+                            isDecantAvailable = isDecantAvail,
+                            usage            = selectedUsage,
+                            createdAt        = existingParfum?.createdAt ?: 0L
                         )
-                        viewModel.saveProduct(
-                            context  = context,
-                            imageUri = imageUri?.let { Uri.parse(it) },
-                            parfum   = parfum
-                        )
+
+                        if (isEditMode) {
+                            viewModel.updateProduct(
+                                context          = context,
+                                imageUri         = newImageUri,
+                                parfum           = parfum,
+                                existingImageUrl = existingUrl
+                            )
+                        } else {
+                            viewModel.saveProduct(
+                                context  = context,
+                                imageUri = imageUri?.let { Uri.parse(it) },
+                                parfum   = parfum
+                            )
+                        }
                     }
                     .padding(vertical = 18.dp),
                 contentAlignment = Alignment.Center
@@ -497,10 +608,19 @@ fun AddProductScreen(
                 if (isLoading) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         CircularProgressIndicator(modifier = Modifier.size(18.dp), color = ScentGold, strokeWidth = 2.dp)
-                        Text("MENGUPLOAD...", style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)))
+                        Text(
+                            if (isEditMode) "MENYIMPAN..." else "MENGUPLOAD...",
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f))
+                        )
                     }
                 } else {
-                    Text("TAMBAH PRODUK", style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Bold, color = if (isFormValid) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)))
+                    Text(
+                        if (isEditMode) "SIMPAN PERUBAHAN" else "TAMBAH PRODUK",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 12.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Bold,
+                            color    = if (isFormValid) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                        )
+                    )
                 }
             }
         }

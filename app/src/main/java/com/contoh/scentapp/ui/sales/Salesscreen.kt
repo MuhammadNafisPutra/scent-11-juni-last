@@ -37,14 +37,19 @@ import com.contoh.scentapp.ui.theme.*
 
 @Composable
 fun SalesScreen(
-    onBack       : () -> Unit = {},
-    onAddProduct : () -> Unit = {},
-    onOrderClick : (String) -> Unit = {},
-    viewModel    : SalesViewModel = viewModel(factory = SalesViewModelFactory())
+    onBack         : () -> Unit = {},
+    onAddProduct   : () -> Unit = {},
+    onEditProduct  : (String) -> Unit = {},
+    onOrderClick   : (String) -> Unit = {},
+    viewModel      : SalesViewModel = viewModel(factory = SalesViewModelFactory())
 ) {
     val uiState      by viewModel.uiState.collectAsStateWithLifecycle()
     val resiDialogId by viewModel.resiDialogOrderId.collectAsStateWithLifecycle()
     val listState     = rememberLazyListState()
+
+    // State untuk dialog konfirmasi hapus
+    var deleteConfirmProductId by remember { mutableStateOf<Int?>(null) }
+    var deleteConfirmProductName by remember { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         LazyColumn(
@@ -250,8 +255,11 @@ fun SalesScreen(
             items(items = uiState.products, key = { "sales_product_${it.id}" }) { product ->
                 SalesProductItem(
                     product  = product,
-                    onEdit   = { },
-                    onDelete = { viewModel.deleteProduct(product.id) },
+                    onEdit   = { onEditProduct(product.firestoreId) },
+                    onDelete = {
+                        deleteConfirmProductId   = product.id
+                        deleteConfirmProductName = product.name
+                    },
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
                 HorizontalDivider(
@@ -268,6 +276,54 @@ fun SalesScreen(
             orderId   = orderId,
             onConfirm = { noResi -> viewModel.inputResiDanKirim(orderId, noResi) },
             onDismiss = { viewModel.closeResiDialog() }
+        )
+    }
+
+    // ── Dialog Konfirmasi Hapus ───────────────────────────────────────────────
+    deleteConfirmProductId?.let { productId ->
+        AlertDialog(
+            onDismissRequest = { deleteConfirmProductId = null },
+            containerColor   = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    "Hapus Produk",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            },
+            text = {
+                Text(
+                    "Apakah kamu yakin ingin menghapus \"$deleteConfirmProductName\"? Tindakan ini tidak dapat dibatalkan.",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+                    )
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteProduct(productId)
+                    deleteConfirmProductId = null
+                }) {
+                    Text(
+                        "HAPUS",
+                        color = Color(0xFFE57373),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold, letterSpacing = 1.sp
+                        )
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteConfirmProductId = null }) {
+                    Text(
+                        "BATAL",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold, letterSpacing = 1.sp
+                        )
+                    )
+                }
+            }
         )
     }
 }

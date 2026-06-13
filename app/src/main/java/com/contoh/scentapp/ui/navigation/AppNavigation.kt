@@ -40,6 +40,7 @@ import com.contoh.scentapp.ui.profile.ProfileScreen
 import com.contoh.scentapp.ui.profile.ShippingAddressScreen
 import com.contoh.scentapp.ui.review.AddReviewScreen
 import com.contoh.scentapp.ui.sales.AddProductScreen
+import com.contoh.scentapp.ui.sales.AddProductViewModelFactory
 import com.contoh.scentapp.ui.sales.SalesScreen
 import com.contoh.scentapp.ui.sales.SalesViewModel
 import com.contoh.scentapp.ui.sales.SalesViewModelFactory
@@ -290,17 +291,33 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
             }
             composable(Routes.SALES) {
                 SalesScreen(
-                    onBack       = { navController.popBackStack() },
-                    onAddProduct = { navController.navigate(Routes.ADD_PRODUCT) },
-                    onOrderClick = { orderId ->
+                    onBack        = { navController.popBackStack() },
+                    onAddProduct  = { navController.navigate(Routes.ADD_PRODUCT) },
+                    onEditProduct = { firestoreId ->
+                        navController.navigate(Routes.editProductRoute(firestoreId))
+                    },
+                    onOrderClick  = { orderId ->
                         navController.navigate(Routes.sellerOrderDetailRoute(orderId))
                     },
-                    viewModel    = salesViewModel
+                    viewModel     = salesViewModel
                 )
             }
             composable(Routes.ADD_PRODUCT) {
                 AddProductScreen(
                     onBack = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route     = Routes.EDIT_PRODUCT,
+                arguments = listOf(navArgument("firestoreId") { type = NavType.StringType })
+            ) { backStack ->
+                val firestoreId = backStack.arguments?.getString("firestoreId") ?: ""
+                AddProductScreen(
+                    onBack      = { navController.popBackStack() },
+                    firestoreId = firestoreId,
+                    viewModel   = viewModel(
+                        factory = AddProductViewModelFactory(firestoreId)
+                    )
                 )
             }
             composable(Routes.ORDER_HISTORY) {

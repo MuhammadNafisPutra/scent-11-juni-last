@@ -15,8 +15,9 @@ object Routes {
     const val ACCOUNT_DETAIL   = "account_detail"
     const val SHIPPING_ADDRESS = "shipping_address"
     const val LANGUAGE         = "language"
-    const val SALES       = "sales"
-    const val ADD_PRODUCT = "add_product"
+    const val SALES        = "sales"
+    const val ADD_PRODUCT  = "add_product"
+    const val EDIT_PRODUCT = "edit_product/{firestoreId}"
 
     const val ORDER_HISTORY = "order_history"
     const val ORDER_DETAIL  = "order_detail/{orderId}"
@@ -26,6 +27,8 @@ object Routes {
     const val ADD_REVIEW = "add_review/{orderId}"
 
     fun detailRoute(firestoreId: String) = "detail/$firestoreId"  // ← ganti Int → String
+
+    fun editProductRoute(firestoreId: String) = "edit_product/$firestoreId"
 
     fun searchRoute(query: String = "") =
         if (query.isBlank()) "search?query=" else "search?query=$query"

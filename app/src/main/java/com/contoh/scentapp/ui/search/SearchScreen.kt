@@ -20,6 +20,8 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -376,23 +378,33 @@ private fun SearchProductCard(
                     )
                 )
         ) {
-            Box(modifier = Modifier.align(Alignment.Center).width(44.dp).height(80.dp)) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter).width(40.dp).height(66.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Brush.verticalGradient(listOf(
-                            Color(product.accentColor).copy(alpha = 0.5f),
-                            Color(product.accentColor).copy(alpha = 0.1f)
-                        )))
-                        .border(0.5.dp, Color(product.accentColor).copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+            // Tampilkan foto produk asli jika ada, fallback ke placeholder botol
+            if (product.imageUrl.isNotBlank()) {
+                AsyncImage(
+                    model              = product.imageUrl,
+                    contentDescription = product.name,
+                    contentScale       = ContentScale.Crop,
+                    modifier           = Modifier.fillMaxSize()
                 )
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter).width(16.dp).height(12.dp)
-                        .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
-                        .background(Color(product.accentColor).copy(alpha = 0.4f))
-                )
+            } else {
+                Box(modifier = Modifier.align(Alignment.Center).width(44.dp).height(80.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter).width(40.dp).height(66.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Brush.verticalGradient(listOf(
+                                Color(product.accentColor).copy(alpha = 0.5f),
+                                Color(product.accentColor).copy(alpha = 0.1f)
+                            )))
+                            .border(0.5.dp, Color(product.accentColor).copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter).width(16.dp).height(12.dp)
+                            .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
+                            .background(Color(product.accentColor).copy(alpha = 0.4f))
+                    )
+                }
             }
             Box(
                 modifier = Modifier

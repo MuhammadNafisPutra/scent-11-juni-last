@@ -21,5 +21,6 @@ data class Parfum(
     val reviewCount: Int = 0,
     val isDecantAvailable: Boolean = false,
     val isLimitedDrop: Boolean = false,
+    val usage: String = "",          // "SIANG", "MALAM", atau "KEDUANYA"
     val createdAt: Long = 0L
 )

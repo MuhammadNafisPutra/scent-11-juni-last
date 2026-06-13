@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.contoh.scentapp.data.model.AromaFilter
 import com.contoh.scentapp.data.model.Product
 import com.contoh.scentapp.data.model.SearchUiState
+import com.contoh.scentapp.data.model.UsageFilter
 import com.contoh.scentapp.data.repository.FavoriteRepository
 import com.contoh.scentapp.data.repository.ProductRepositoryImpl
 import kotlinx.coroutines.FlowPreview
@@ -67,6 +68,7 @@ class SearchViewModel(
                         isFavorite   = parfum.id in favoriteIds,
                         description  = parfum.description,
                         aromaProfile = listOf(parfum.olfactoryFamily).filter { it.isNotBlank() },
+                        usage        = parfum.usage,          // ← petakan field usage
                         rating       = parfum.avgLongevity,
                         reviewCount  = parfum.reviewCount
                     )
@@ -78,6 +80,7 @@ class SearchViewModel(
                         state.copy(
                             allProducts  = products,
                             aromaFilters = buildAromaFilters(products),
+                            usageFilters = buildUsageFilters(products),  // ← populate usageFilters
                             isLoading    = false
                         )
                     }
@@ -88,8 +91,7 @@ class SearchViewModel(
 
     /**
      * Bangun daftar chip filter aroma HANYA dari profil aroma produk yang
-     * benar-benar ada saat ini. Jika belum ada produk, hasilnya kosong
-     * sehingga seksi filter aroma tidak ditampilkan.
+     * benar-benar ada saat ini.
      */
     private fun buildAromaFilters(products: List<Product>): List<AromaFilter> {
         return products
@@ -100,6 +102,30 @@ class SearchViewModel(
             .distinct()
             .sorted()
             .map { AromaFilter(id = it, label = it) }
+    }
+
+    /**
+     * Bangun daftar filter waktu penggunaan dari data produk yang ada.
+     * Urutkan: SIANG → MALAM → KEDUANYA sehingga tampil konsisten.
+     */
+    private fun buildUsageFilters(products: List<Product>): List<UsageFilter> {
+        val order = listOf("SIANG", "MALAM", "KEDUANYA")
+        val existing = products
+            .map { it.usage.trim().uppercase() }
+            .filter { it.isNotBlank() }
+            .distinct()
+
+        return order
+            .filter { it in existing }
+            .map { usage ->
+                val label = when (usage) {
+                    "SIANG"    -> "☀ SIANG"
+                    "MALAM"    -> "🌙 MALAM"
+                    "KEDUANYA" -> "✦ KEDUANYA"
+                    else       -> usage
+                }
+                UsageFilter(id = usage, label = label)
+            }
     }
 
     fun onQueryChange(query: String) {
@@ -153,7 +179,8 @@ class SearchViewModel(
             val matchAroma = state.selectedAromaFilters.isEmpty() ||
                     p.aromaProfile.any { it.uppercase() in state.selectedAromaFilters }
             val matchUsage = state.selectedUsage == null ||
-                    p.usage.equals(state.selectedUsage, ignoreCase = true)
+                    p.usage.uppercase() == state.selectedUsage!!.uppercase() ||
+                    p.usage.uppercase() == "KEDUANYA"   // produk KEDUANYA cocok untuk filter apapun
             matchQuery && matchAroma && matchUsage
         }
         _uiState.update { it.copy(results = results) }
