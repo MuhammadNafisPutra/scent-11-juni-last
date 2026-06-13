@@ -1,6 +1,6 @@
-package com.contoh.scentapp.data.repository
+﻿package com.contoh.scentapp.data.repository
 
-import com.contoh.scentapp.data.model.Review
+import com.contoh.scentapp.domain.model.Review
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -17,7 +17,7 @@ import kotlinx.coroutines.tasks.await
  *
  * Setiap kali ulasan baru ditambahkan, statistik agregat pada dokumen
  * parfums/{parfumId} (reviewCount, avgLongevity, avgSillage, avgProjection)
- * juga ikut diperbarui — sehingga rating yang tampil di Home/Detail
+ * juga ikut diperbarui â€” sehingga rating yang tampil di Home/Detail
  * selalu sinkron dengan ulasan yang benar-benar ditulis.
  */
 class ReviewRepository(

@@ -1,4 +1,4 @@
-package com.contoh.scentapp.ui.order
+﻿package com.contoh.scentapp.ui.order
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.contoh.scentapp.data.model.OrderStatus
+import com.contoh.scentapp.domain.model.OrderStatus
 import com.contoh.scentapp.ui.theme.*
 
 @Composable
@@ -103,7 +103,7 @@ fun OrderDetailScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                "✓ PESANAN SELESAI",
+                                "âœ“ PESANAN SELESAI",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontSize = 12.sp, letterSpacing = 2.sp,
                                     fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
@@ -116,7 +116,7 @@ fun OrderDetailScreen(
             }
         }
     ) { innerPadding ->
-        // ── Scrollable Content ────────────────────────────────────────────────
+        // â”€â”€ Scrollable Content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -190,7 +190,7 @@ fun OrderDetailScreen(
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
-                                "BOUTIQUE SERIES • 50ML",
+                                "BOUTIQUE SERIES â€¢ 50ML",
                                 style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f))
                             )
                         }
@@ -226,7 +226,7 @@ fun OrderDetailScreen(
         }
     }
 
-    // ── Dialog Konfirmasi Terima ──────────────────────────────────────────────
+    // â”€â”€ Dialog Konfirmasi Terima â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (showKonfirmasi) {
         AlertDialog(
             onDismissRequest = { showKonfirmasi = false },
@@ -270,7 +270,7 @@ fun OrderDetailScreen(
         )
     }
 
-    // ── Dialog Laporan Tidak Sampai ───────────────────────────────────────────
+    // â”€â”€ Dialog Laporan Tidak Sampai â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (showLaporan) {
         AlertDialog(
             onDismissRequest = { showLaporan = false },
@@ -284,7 +284,7 @@ fun OrderDetailScreen(
             },
             text = {
                 Text(
-                    "Laporkan bahwa pesanan ini tidak sampai? Tim kami akan menghubungi kamu dalam 1×24 jam.",
+                    "Laporkan bahwa pesanan ini tidak sampai? Tim kami akan menghubungi kamu dalam 1Ã—24 jam.",
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f))
                 )
             },

@@ -18,9 +18,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
-import com.contoh.scentapp.data.model.Routes
-import com.contoh.scentapp.data.model.Order
-import com.contoh.scentapp.data.model.OrderStatus
+import com.contoh.scentapp.ui.navigation.Routes
+import com.contoh.scentapp.domain.model.Order
+import com.contoh.scentapp.domain.model.OrderStatus
 import com.contoh.scentapp.data.repository.CartRepository
 import com.contoh.scentapp.data.repository.OrderRepositoryImpl
 import com.contoh.scentapp.data.repository.SessionManager
@@ -40,10 +40,8 @@ import com.contoh.scentapp.ui.profile.ProfileScreen
 import com.contoh.scentapp.ui.profile.ShippingAddressScreen
 import com.contoh.scentapp.ui.review.AddReviewScreen
 import com.contoh.scentapp.ui.sales.AddProductScreen
-import com.contoh.scentapp.ui.sales.AddProductViewModelFactory
 import com.contoh.scentapp.ui.sales.SalesScreen
 import com.contoh.scentapp.ui.sales.SalesViewModel
-import com.contoh.scentapp.ui.sales.SalesViewModelFactory
 import com.contoh.scentapp.ui.sales.SellerOrderDetailScreen
 import com.contoh.scentapp.ui.search.SearchScreen
 import com.contoh.scentapp.ui.shipping.ShippingScreen
@@ -80,12 +78,12 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
             }
         }
     ) { innerPadding ->
-        val salesViewModel: SalesViewModel = viewModel(factory = SalesViewModelFactory())
+        val salesViewModel: SalesViewModel = viewModel(factory = com.contoh.scentapp.di.ViewModelFactory.salesFactory())
         val coroutineScope  = rememberCoroutineScope()
         val cartRepository  = CartRepository.getInstance()
         val orderRepository = OrderRepositoryImpl()
 
-        // ── Buat dokumen pesanan dari isi keranjang saat checkout ──────────────
+        // â”€â”€ Buat dokumen pesanan dari isi keranjang saat checkout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         // Dipanggil baik dari jalur COD (ShippingScreen) maupun Transfer
         // (UploadPaymentProofScreen), agar pesanan langsung tercatat di
         // Firestore dan muncul di Riwayat Pesanan (buyer) & Pesanan Masuk (seller).
@@ -106,7 +104,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
                 }
                 val paymentMethodLabel = if (isTransfer) "Transfer" else "COD"
 
-                // Pisahkan item per penjual (sellerId) — satu order Firestore
+                // Pisahkan item per penjual (sellerId) â€” satu order Firestore
                 // hanya boleh memiliki satu sellerId agar muncul benar di
                 // halaman "Pesanan Masuk" milik penjual tersebut.
                 val itemsBySeller = items.groupBy { it.sellerId }
@@ -163,7 +161,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
             }
             composable(Routes.HOME) {
                 HomeScreen(
-                    // ← passing firestoreId (String) bukan productId (Int)
+                    // â† passing firestoreId (String) bukan productId (Int)
                     onProductClick = { firestoreId ->
                         navController.navigate(Routes.detailRoute(firestoreId))
                     },
@@ -175,7 +173,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
             composable(Routes.FAVORITE) {
                 FavoriteScreen(
                     onBack         = { navController.popBackStack() },
-                    // ← passing firestoreId (String)
+                    // â† passing firestoreId (String)
                     onProductClick = { firestoreId ->
                         navController.navigate(Routes.detailRoute(firestoreId))
                     }
@@ -206,7 +204,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
             }
             composable(
                 route     = Routes.DETAIL,
-                // ← ganti IntType → StringType, ganti key "productId" → "firestoreId"
+                // â† ganti IntType â†’ StringType, ganti key "productId" â†’ "firestoreId"
                 arguments = listOf(navArgument("firestoreId") { type = NavType.StringType })
             ) { backStack ->
                 val firestoreId = backStack.arguments?.getString("firestoreId")
@@ -231,7 +229,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
                 SearchScreen(
                     initialQuery   = backStack.arguments?.getString("query") ?: "",
                     onBack         = { navController.popBackStack() },
-                    // ← passing firestoreId (String)
+                    // â† passing firestoreId (String)
                     onProductClick = { firestoreId ->
                         navController.navigate(Routes.detailRoute(firestoreId))
                     }
@@ -316,7 +314,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
                     onBack      = { navController.popBackStack() },
                     firestoreId = firestoreId,
                     viewModel   = viewModel(
-                        factory = AddProductViewModelFactory(firestoreId)
+                        factory = com.contoh.scentapp.di.ViewModelFactory.addProductFactory(firestoreId)
                     )
                 )
             }

@@ -31,7 +31,11 @@ import com.contoh.scentapp.ui.theme.*
 fun LoginScreen(
     onLoginSuccess : () -> Unit = {},
     onRegister     : () -> Unit = {},
-    viewModel      : AuthViewModel = viewModel(factory = AuthViewModelFactory(LocalContext.current.applicationContext as android.app.Application))
+    viewModel      : AuthViewModel = viewModel(
+        factory = com.contoh.scentapp.di.ViewModelFactory.authFactory(
+            LocalContext.current.applicationContext as android.app.Application
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var email    by rememberSaveable { mutableStateOf(uiState.loginEmail) }
@@ -40,7 +44,7 @@ fun LoginScreen(
     LaunchedEffect(email)    { viewModel.onLoginEmailChange(email) }
     LaunchedEffect(password) { viewModel.onLoginPasswordChange(password) }
 
-    // ── Adaptive color tokens ──────────────────────────────────────────────
+    // â”€â”€ Adaptive color tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     val bg       = MaterialTheme.colorScheme.background
     val onBg     = MaterialTheme.colorScheme.onBackground
     val muted    = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
@@ -167,7 +171,7 @@ fun LoginScreen(
                     decorationBox        = { inner ->
                         if (password.isEmpty()) {
                             Text(
-                                text  = "••••••••",
+                                text  = "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     color = muted, fontSize = 16.sp
                                 )

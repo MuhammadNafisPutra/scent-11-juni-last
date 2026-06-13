@@ -1,4 +1,4 @@
-package com.contoh.scentapp.data.repository
+﻿package com.contoh.scentapp.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -22,7 +22,7 @@ class LanguageManager private constructor(context: Context) {
         }
     }
 
-    // ── Simpan bahasa yang dipilih ────────────────────────────────────────────
+    // â”€â”€ Simpan bahasa yang dipilih â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     var selectedLanguage: String
         get() = prefs.getString("selected_language", "id") ?: "id"
@@ -30,7 +30,7 @@ class LanguageManager private constructor(context: Context) {
             prefs.edit().putString("selected_language", value).apply()
         }
 
-    // ── Terapkan bahasa ke seluruh app ────────────────────────────────────────
+    // â”€â”€ Terapkan bahasa ke seluruh app â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     fun applyLanguage(languageCode: String) {
         selectedLanguage = languageCode
@@ -38,7 +38,7 @@ class LanguageManager private constructor(context: Context) {
         AppCompatDelegate.setApplicationLocales(localeList)
     }
 
-    // ── Terapkan bahasa saat app dibuka ───────────────────────────────────────
+    // â”€â”€ Terapkan bahasa saat app dibuka â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     fun applyStoredLanguage() {
         val localeList = LocaleListCompat.forLanguageTags(selectedLanguage)

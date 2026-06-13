@@ -1,11 +1,11 @@
-package com.contoh.scentapp.data.repository
+﻿package com.contoh.scentapp.data.repository
 
-import com.contoh.scentapp.data.model.AromaFilter
-import com.contoh.scentapp.data.model.HeroBanner
-import com.contoh.scentapp.data.model.Product
-import com.contoh.scentapp.data.model.Review
-import com.contoh.scentapp.data.model.SizeOption
-import com.contoh.scentapp.data.model.UsageFilter
+import com.contoh.scentapp.domain.model.AromaFilter
+import com.contoh.scentapp.domain.model.HeroBanner
+import com.contoh.scentapp.domain.model.Product
+import com.contoh.scentapp.domain.model.Review
+import com.contoh.scentapp.domain.model.SizeOption
+import com.contoh.scentapp.domain.model.UsageFilter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -183,7 +183,7 @@ class ProductRepository private constructor() {
             text        = "\"Vetiver paling realistis yang pernah saya temui. Ini tidak " +
                     "tercium seperti parfum; ini tercium seperti sebuah tempat. " +
                     "Spesifiknya, sebuah perpustakaan tua di tengah hutan yang lembab. " +
-                    "Ketahanannya luar biasa—saya masih bisa mencium aroma dasarnya " +
+                    "Ketahanannya luar biasaâ€”saya masih bisa mencium aroma dasarnya " +
                     "di sweter saya tiga hari kemudian.\"",
             avatarColor = 0xFF1A2535,
             rating      = 5f,

@@ -36,7 +36,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.contoh.scentapp.data.model.Parfum
+import com.contoh.scentapp.domain.model.Parfum
 import com.contoh.scentapp.ui.theme.*
 import java.io.File
 
@@ -47,8 +47,8 @@ private val bankOptions   = listOf("BCA", "BNI", "BRI", "Mandiri", "BSI", "Perma
 private val walletOptions = listOf("GoPay", "OVO", "DANA", "ShopeePay", "LinkAja", "Lainnya")
 
 /**
- * [firestoreId] = null  → mode TAMBAH PRODUK BARU
- * [firestoreId] = "xyz" → mode EDIT, form akan di-prefill dengan data produk
+ * [firestoreId] = null  â†’ mode TAMBAH PRODUK BARU
+ * [firestoreId] = "xyz" â†’ mode EDIT, form akan di-prefill dengan data produk
  */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +56,7 @@ fun AddProductScreen(
     onBack       : () -> Unit             = {},
     firestoreId  : String?                = null,
     viewModel    : AddProductViewModel    = viewModel(
-        factory = AddProductViewModelFactory(firestoreId)
+        factory = com.contoh.scentapp.di.ViewModelFactory.addProductFactory(firestoreId)
     )
 ) {
     val context        = LocalContext.current
@@ -66,7 +66,7 @@ fun AddProductScreen(
 
     val isEditMode = firestoreId != null
 
-    // ── Form state ─────────────────────────────────────────────────────────
+    // â”€â”€ Form state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     var namaParfum       by rememberSaveable { mutableStateOf("") }
     var brandParfum      by rememberSaveable { mutableStateOf("") }
     var deskripsi        by rememberSaveable { mutableStateOf("") }
@@ -95,7 +95,7 @@ fun AddProductScreen(
     // Tandai apakah form sudah di-prefill dari data existing
     var prefilled by rememberSaveable { mutableStateOf(false) }
 
-    // ── Prefill form saat mode Edit dan data sudah di-load ─────────────────
+    // â”€â”€ Prefill form saat mode Edit dan data sudah di-load â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     LaunchedEffect(existingParfum) {
         val p = existingParfum
         if (isEditMode && p != null && !prefilled) {
@@ -246,7 +246,7 @@ fun AddProductScreen(
                 .padding(bottom = 120.dp)
         ) {
 
-            // ── Top Bar ───────────────────────────────────────────────────────
+            // â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Row(
                 modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalAlignment     = Alignment.CenterVertically,
@@ -261,7 +261,7 @@ fun AddProductScreen(
                 Spacer(Modifier.size(22.dp))
             }
 
-            // ── Header ────────────────────────────────────────────────────────
+            // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("MANAJEMEN INVENTARIS", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 2.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(6.dp))
@@ -272,7 +272,7 @@ fun AddProductScreen(
                 )
             }
 
-            // ── Upload Foto ───────────────────────────────────────────────────
+            // â”€â”€ Upload Foto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Box(
                 modifier = Modifier
                     .padding(horizontal = 20.dp, vertical = 12.dp)
@@ -310,11 +310,11 @@ fun AddProductScreen(
                 }
             }
 
-            // ── Nama & Brand ──────────────────────────────────────────────────
-            ProductFormField(label = "NAMA PARFUM", value = namaParfum, onChange = { namaParfum = it }, placeholder = "contoh: Noir Éphémère", modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
+            // â”€â”€ Nama & Brand â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            ProductFormField(label = "NAMA PARFUM", value = namaParfum, onChange = { namaParfum = it }, placeholder = "contoh: Noir Ã‰phÃ©mÃ¨re", modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
             ProductFormField(label = "BRAND", value = brandParfum, onChange = { brandParfum = it }, placeholder = "contoh: Atelier V", modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
 
-            // ── Deskripsi ─────────────────────────────────────────────────────
+            // â”€â”€ Deskripsi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("DESKRIPSI PARFUM", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(10.dp))
@@ -336,7 +336,7 @@ fun AddProductScreen(
                 }
             }
 
-            // ── Harga Penuh ───────────────────────────────────────────────────
+            // â”€â”€ Harga Penuh â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("HARGA PENUH (RP)", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(10.dp))
@@ -363,7 +363,7 @@ fun AddProductScreen(
                 }
             }
 
-            // ── Decant Toggle ─────────────────────────────────────────────────
+            // â”€â”€ Decant Toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
                 verticalAlignment     = Alignment.CenterVertically,
@@ -413,7 +413,7 @@ fun AddProductScreen(
                 }
             }
 
-            // ── Aroma Family ──────────────────────────────────────────────────
+            // â”€â”€ Aroma Family â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("WANGI (OLFACTORY FAMILY)", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(10.dp))
@@ -433,7 +433,7 @@ fun AddProductScreen(
                 }
             }
 
-            // ── Notes Aroma ───────────────────────────────────────────────────
+            // â”€â”€ Notes Aroma â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Column(
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp).fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
@@ -471,13 +471,13 @@ fun AddProductScreen(
                             }
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
-                        Text(if (showChipInput && newChipInput.isNotBlank()) "✓ SIMPAN" else "+ TAMBAH NOTE",
+                        Text(if (showChipInput && newChipInput.isNotBlank()) "âœ“ SIMPAN" else "+ TAMBAH NOTE",
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)))
                     }
                 }
             }
 
-            // ── Stok & Ukuran ─────────────────────────────────────────────────
+            // â”€â”€ Stok & Ukuran â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             ProductFormField(label = "JUMLAH STOK", value = jumlahStok, onChange = { jumlahStok = it }, placeholder = "48", keyboardType = KeyboardType.Number, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
 
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
@@ -500,7 +500,7 @@ fun AddProductScreen(
             }
 
 
-            // ── Waktu Penggunaan ──────────────────────────────────────────────
+            // â”€â”€ Waktu Penggunaan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("WAKTU PENGGUNAAN", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(4.dp))
@@ -543,7 +543,7 @@ fun AddProductScreen(
             Spacer(Modifier.height(8.dp))
         }
 
-        // ── Tombol Simpan / Loading ────────────────────────────────────────────
+        // â”€â”€ Tombol Simpan / Loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Box(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)

@@ -1,4 +1,4 @@
-package com.contoh.scentapp.ui.theme.components
+﻿package com.contoh.scentapp.ui.theme.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -21,7 +21,7 @@ import com.contoh.scentapp.R
 
 private data class NavItem(
     val route    : String,
-    val labelRes : Int,          // ✅ Ganti dari String ke resource ID
+    val labelRes : Int,          // âœ… Ganti dari String ke resource ID
     val iconOn   : ImageVector,
     val iconOff  : ImageVector
 )
@@ -84,7 +84,7 @@ private fun NavBarItem(
         label         = "navLabelColor_${item.route}"
     )
 
-    val label = stringResource(item.labelRes) // ✅ Ambil string dari resource
+    val label = stringResource(item.labelRes) // âœ… Ambil string dari resource
 
     Column(
         modifier            = modifier.clickable(onClick = onClick),
@@ -99,7 +99,7 @@ private fun NavBarItem(
         )
         Spacer(Modifier.height(3.dp))
         Text(
-            text  = label, // ✅ Pakai label dari stringResource
+            text  = label, // âœ… Pakai label dari stringResource
             style = MaterialTheme.typography.labelSmall.copy(
                 fontSize      = 9.sp,
                 letterSpacing = 0.8.sp,

@@ -23,19 +23,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.contoh.scentapp.data.remote.dto.CityDto
+import com.contoh.scentapp.data.remote.dto.ProvinceDto
 import com.contoh.scentapp.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShippingAddressScreen(
-    onBack : () -> Unit = {}
+    onBack : () -> Unit = {},
+    viewModel: ShippingAddressViewModel = viewModel()
 ) {
     var namaPenerima   by rememberSaveable { mutableStateOf("") }
     var noTelepon      by rememberSaveable { mutableStateOf("") }
-    var kota           by rememberSaveable { mutableStateOf("") }
     var kodePos        by rememberSaveable { mutableStateOf("") }
     var alamatLengkap  by rememberSaveable { mutableStateOf("") }
     var labelAlamat    by rememberSaveable { mutableStateOf("RUMAH") }
     var isAlamatUtama  by rememberSaveable { mutableStateOf(false) }
+    
+    val provinces by viewModel.provinces.collectAsState()
+    val cities by viewModel.cities.collectAsState()
+    
+    var selectedProvince by remember { mutableStateOf<ProvinceDto?>(null) }
+    var selectedCity by remember { mutableStateOf<CityDto?>(null) }
+    
+    var expandedProvince by remember { mutableStateOf(false) }
+    var expandedCity by remember { mutableStateOf(false) }
+
     val listState       = rememberLazyListState()
     val labelOptions = listOf("RUMAH", "KANTOR", "LAINNYA")
 
@@ -124,18 +138,103 @@ fun ShippingAddressScreen(
                     modifier        = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                 )
             }
+            
+            // PROVINCE DROPDOWN
+            item(key = "provinsi") {
+                Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                    Text(
+                        text  = "PROVINSI",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize      = 10.sp,
+                            letterSpacing = 1.5.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        )
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    ExposedDropdownMenuBox(
+                        expanded = expandedProvince,
+                        onExpandedChange = { expandedProvince = !expandedProvince }
+                    ) {
+                        OutlinedTextField(
+                            value = selectedProvince?.name ?: "Pilih Provinsi",
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedProvince) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedProvince,
+                            onDismissRequest = { expandedProvince = false }
+                        ) {
+                            provinces.forEach { province ->
+                                DropdownMenuItem(
+                                    text = { Text(province.name) },
+                                    onClick = {
+                                        selectedProvince = province
+                                        expandedProvince = false
+                                        selectedCity = null
+                                        viewModel.fetchCities(province.id)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // CITY AND POSTAL CODE
             item(key = "kota_kodepos") {
                 Row(
                     modifier              = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    AddressFormField(
-                        label       = "KOTA / KECAMATAN",
-                        value       = kota,
-                        onChange    = { kota = it },
-                        placeholder = "Bandung",
-                        modifier    = Modifier.weight(1.5f)
-                    )
+                    Column(modifier = Modifier.weight(1.5f)) {
+                        Text(
+                            text  = "KOTA / KABUPATEN",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize      = 10.sp,
+                                letterSpacing = 1.5.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                            )
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        ExposedDropdownMenuBox(
+                            expanded = expandedCity,
+                            onExpandedChange = { if(cities.isNotEmpty()) expandedCity = !expandedCity }
+                        ) {
+                            OutlinedTextField(
+                                value = selectedCity?.name ?: "Pilih Kota",
+                                onValueChange = {},
+                                readOnly = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCity) },
+                                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            ExposedDropdownMenu(
+                                expanded = expandedCity,
+                                onDismissRequest = { expandedCity = false }
+                            ) {
+                                cities.forEach { city ->
+                                    DropdownMenuItem(
+                                        text = { Text(city.name) },
+                                        onClick = {
+                                            selectedCity = city
+                                            expandedCity = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                     AddressFormField(
                         label       = "KODE POS",
                         value       = kodePos,
@@ -147,7 +246,6 @@ fun ShippingAddressScreen(
                 }
             }
 
-            // ── Alamat Lengkap ────────────────────────────────────────────────
             item(key = "alamat") {
                 Column(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
@@ -275,7 +373,10 @@ fun ShippingAddressScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colorScheme.onBackground)
-                    .clickable { onBack() }
+                    .clickable { 
+                        selectedCity?.let { viewModel.saveDestinationCity(it.id) }
+                        onBack() 
+                    }
                     .padding(vertical = 18.dp),
                 contentAlignment = Alignment.Center
             ) {

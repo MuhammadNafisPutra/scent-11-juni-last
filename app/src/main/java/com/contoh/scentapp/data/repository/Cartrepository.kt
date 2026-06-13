@@ -1,25 +1,38 @@
 package com.contoh.scentapp.data.repository
 
-import com.contoh.scentapp.data.model.CartItem
-import com.contoh.scentapp.data.model.ShippingOption
+import com.contoh.scentapp.domain.model.CartItem
+import com.contoh.scentapp.domain.model.ShippingOption
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class CartRepository private constructor() {
+import com.contoh.scentapp.data.local.dao.CartDao
+import com.contoh.scentapp.data.local.entity.toEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+
+class CartRepository private constructor(private val cartDao: CartDao) {
     companion object {
         @Volatile
         private var INSTANCE: CartRepository? = null
 
-        fun getInstance(): CartRepository =
+        fun getInstance(cartDao: CartDao): CartRepository =
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: CartRepository().also { INSTANCE = it }
+                INSTANCE ?: CartRepository(cartDao).also { INSTANCE = it }
             }
+        
+        // Throw error if not initialized
+        fun getInstance(): CartRepository = INSTANCE ?: throw IllegalStateException("CartRepository not initialized")
     }
 
-    private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
-    val cartItems: Flow<List<CartItem>> = _cartItems.asStateFlow()
+    val cartItems: Flow<List<CartItem>> = cartDao.getAllCartItems().map { list ->
+        list.map { it.toDomainModel() }
+    }
+    
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     /**
      * Ringkasan total pesanan (subtotal produk + biaya pengiriman) yang
@@ -35,46 +48,49 @@ class CartRepository private constructor() {
     }
 
     fun addToCart(item: CartItem) {
-        _cartItems.update { list ->
-            // FIX: compare productId to productId (was comparing id to productId)
-            val existing = list.find { it.productId == item.productId }
+        scope.launch {
+            val existing = cartDao.getCartItemByProductId(item.productId)
             if (existing != null) {
-                list.map {
-                    if (it.productId == item.productId)
-                        it.copy(quantity = it.quantity + 1)
-                    else it
-                }
+                cartDao.updateCartItem(existing.copy(quantity = existing.quantity + 1))
             } else {
-                list + item
+                cartDao.insertCartItem(item.toEntity())
             }
         }
     }
 
     fun removeFromCart(productId: Int) {
-        _cartItems.update { list -> list.filter { it.productId != productId } }
+        scope.launch {
+            cartDao.deleteCartItemByProductId(productId)
+        }
     }
 
     fun increaseQuantity(productId: Int) {
-        _cartItems.update { list ->
-            list.map {
-                if (it.productId == productId) it.copy(quantity = it.quantity + 1)
-                else it
+        scope.launch {
+            val existing = cartDao.getCartItemByProductId(productId)
+            if (existing != null) {
+                cartDao.updateCartItem(existing.copy(quantity = existing.quantity + 1))
             }
         }
     }
 
     fun decreaseQuantity(productId: Int) {
-        _cartItems.update { list ->
-            list.mapNotNull {
-                if (it.productId == productId) {
-                    if (it.quantity > 1) it.copy(quantity = it.quantity - 1)
-                    else null
-                } else it
+        scope.launch {
+            val existing = cartDao.getCartItemByProductId(productId)
+            if (existing != null) {
+                if (existing.quantity > 1) {
+                    cartDao.updateCartItem(existing.copy(quantity = existing.quantity - 1))
+                } else {
+                    cartDao.deleteCartItemByProductId(productId)
+                }
             }
         }
     }
 
-    fun clearCart() { _cartItems.update { emptyList() } }
+    fun clearCart() {
+        scope.launch {
+            cartDao.clearCart()
+        }
+    }
 
     val shippingOptions: List<ShippingOption> = listOf(
         ShippingOption(id="jnt",     name="J&T Express",  badge="REGULAR", estimasi="Estimasi tiba: 2-3 hari", price=15_000, iconType="truck"),

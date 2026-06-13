@@ -33,14 +33,14 @@ fun RegisterScreen(
     onRegisterSuccess : () -> Unit = {},
     onLogin           : () -> Unit = {},
     viewModel         : AuthViewModel = viewModel(
-        factory = AuthViewModelFactory(
+        factory = com.contoh.scentapp.di.ViewModelFactory.authFactory(
             LocalContext.current.applicationContext as android.app.Application
         )
     )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // State lokal form — sync ke ViewModel via LaunchedEffect
+    // State lokal form â€” sync ke ViewModel via LaunchedEffect
     var name     by rememberSaveable { mutableStateOf(uiState.registerName) }
     var email    by rememberSaveable { mutableStateOf(uiState.registerEmail) }
     var password by rememberSaveable { mutableStateOf(uiState.registerPassword) }
@@ -49,7 +49,7 @@ fun RegisterScreen(
     LaunchedEffect(email)    { viewModel.onRegisterEmailChange(email) }
     LaunchedEffect(password) { viewModel.onRegisterPasswordChange(password) }
 
-    // ── Adaptive color tokens ──────────────────────────────────────────────
+    // â”€â”€ Adaptive color tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     val bg      = MaterialTheme.colorScheme.background
     val onBg    = MaterialTheme.colorScheme.onBackground
     val muted   = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
@@ -67,7 +67,7 @@ fun RegisterScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(Modifier.height(48.dp))
 
-            // ── Header ────────────────────────────────────────────────────
+            // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Row(
                 modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -106,7 +106,7 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(40.dp))
 
-            // ── Judul ─────────────────────────────────────────────────────
+            // â”€â”€ Judul â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Text(
                 text  = "Buat Akun",
                 style = MaterialTheme.typography.displayMedium.copy(
@@ -126,7 +126,7 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(40.dp))
 
-            // ── Field Nama ────────────────────────────────────────────────
+            // â”€â”€ Field Nama â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             AuthFormField(
                 label       = "NAMA LENGKAP",
                 value       = name,
@@ -141,7 +141,7 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Field Email ───────────────────────────────────────────────
+            // â”€â”€ Field Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             AuthFormField(
                 label        = "ALAMAT EMAIL",
                 value        = email,
@@ -157,7 +157,7 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Field Password ────────────────────────────────────────────
+            // â”€â”€ Field Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Text(
                 text  = "KATA SANDI",
                 style = MaterialTheme.typography.labelSmall.copy(
@@ -197,7 +197,7 @@ fun RegisterScreen(
                         decorationBox   = { inner ->
                             if (password.isEmpty()) {
                                 Text(
-                                    text  = "••••••••",
+                                    text  = "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         color    = muted,
                                         fontSize = 16.sp
@@ -222,7 +222,7 @@ fun RegisterScreen(
                 }
             }
 
-            // ── Error Message ─────────────────────────────────────────────
+            // â”€â”€ Error Message â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             uiState.errorMessage?.let { error ->
                 Spacer(Modifier.height(12.dp))
                 Text(
@@ -235,7 +235,7 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(32.dp))
 
-            // ── Tombol Daftar ─────────────────────────────────────────────
+            // â”€â”€ Tombol Daftar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -270,7 +270,7 @@ fun RegisterScreen(
     }
 }
 
-// ── Reusable Form Field ────────────────────────────────────────────────────────
+// â”€â”€ Reusable Form Field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @Composable
 private fun AuthFormField(
     label        : String,

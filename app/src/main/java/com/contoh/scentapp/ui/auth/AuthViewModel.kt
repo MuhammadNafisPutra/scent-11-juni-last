@@ -2,27 +2,30 @@ package com.contoh.scentapp.ui.auth
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.contoh.scentapp.data.model.AuthUiState
-import com.contoh.scentapp.data.repository.AuthRepositoryImpl
+import com.contoh.scentapp.ui.state.AuthUiState
 import com.contoh.scentapp.data.repository.SessionManager
+import com.contoh.scentapp.domain.usecase.auth.LoginUseCase
+import com.contoh.scentapp.domain.usecase.auth.RegisterUseCase
+import com.contoh.scentapp.domain.usecase.auth.LogoutUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class AuthViewModel(application: Application) : AndroidViewModel(application) {
+class AuthViewModel(
+    application: Application,
+    private val loginUseCase: LoginUseCase,
+    private val registerUseCase: RegisterUseCase,
+    private val logoutUseCase: LogoutUseCase
+) : AndroidViewModel(application) {
 
-    private val authRepository = AuthRepositoryImpl.getInstance()
     private val sessionManager = SessionManager.getInstance(application)
 
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    // ── Login field handlers ───────────────────────────────────────────────
     fun onLoginEmailChange(value: String) {
         _uiState.update { it.copy(loginEmail = value, errorMessage = null) }
     }
@@ -33,7 +36,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(showLoginPass = !it.showLoginPass) }
     }
 
-    // ── Register field handlers ────────────────────────────────────────────
     fun onRegisterNameChange(value: String) {
         _uiState.update { it.copy(registerName = value, errorMessage = null) }
     }
@@ -43,12 +45,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     fun onRegisterPasswordChange(value: String) {
         _uiState.update { it.copy(registerPassword = value, errorMessage = null) }
     }
-    // FIX: fungsi ini sebelumnya tidak ada — ditambahkan agar RegisterScreen bisa toggle show/hide password
     fun toggleRegisterPasswordVisibility() {
         _uiState.update { it.copy(showRegisterPass = !it.showRegisterPass) }
     }
 
-    // ── Login dengan Firebase ──────────────────────────────────────────────
     fun login(onSuccess: () -> Unit) {
         val state = _uiState.value
         if (state.loginEmail.isBlank()) {
@@ -63,7 +63,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             try {
-                val result = authRepository.login(state.loginEmail, state.loginPassword)
+                val result = loginUseCase(state.loginEmail, state.loginPassword)
                 result.onSuccess { user ->
                     sessionManager.saveSession(email = user.email)
                     _uiState.update { it.copy(isLoading = false, isLoggedIn = true) }
@@ -71,24 +71,17 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 result.onFailure { e ->
                     _uiState.update {
-                        it.copy(
-                            isLoading    = false,
-                            errorMessage = e.message ?: "Login gagal"
-                        )
+                        it.copy(isLoading = false, errorMessage = e.message ?: "Login gagal")
                     }
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(
-                        isLoading    = false,
-                        errorMessage = e.message ?: "Login gagal"
-                    )
+                    it.copy(isLoading = false, errorMessage = e.message ?: "Login gagal")
                 }
             }
         }
     }
 
-    // ── Register dengan Firebase ───────────────────────────────────────────
     fun register(onSuccess: () -> Unit) {
         val state = _uiState.value
         if (state.registerName.isBlank()) {
@@ -107,8 +100,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             try {
-                val result = authRepository.register(
-                    email    = state.registerEmail,
+                val result = registerUseCase(
+                    email = state.registerEmail,
                     password = state.registerPassword,
                     fullName = state.registerName
                 )
@@ -119,44 +112,26 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 result.onFailure { e ->
                     _uiState.update {
-                        it.copy(
-                            isLoading    = false,
-                            errorMessage = e.message ?: "Registrasi gagal"
-                        )
+                        it.copy(isLoading = false, errorMessage = e.message ?: "Registrasi gagal")
                     }
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(
-                        isLoading    = false,
-                        errorMessage = e.message ?: "Registrasi gagal"
-                    )
+                    it.copy(isLoading = false, errorMessage = e.message ?: "Registrasi gagal")
                 }
             }
         }
     }
 
-    // ── Logout ─────────────────────────────────────────────────────────────
     fun logout() {
         viewModelScope.launch {
-            authRepository.logout()
+            logoutUseCase()
             sessionManager.clearSession()
             _uiState.update { AuthUiState() }
         }
     }
 
-    // ── Clear error ────────────────────────────────────────────────────────
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
-    }
-}
-
-class AuthViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
-            return AuthViewModel(application) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -1,12 +1,12 @@
-package com.contoh.scentapp.domain
+﻿package com.contoh.scentapp.domain
 
-import com.contoh.scentapp.data.model.CartItem
-import com.contoh.scentapp.data.model.Order
-import com.contoh.scentapp.data.model.OrderStatus
-import com.contoh.scentapp.data.model.Parfum
-import com.contoh.scentapp.data.model.ParfumFilter
-import com.contoh.scentapp.data.model.Review
-import com.contoh.scentapp.data.model.User
+import com.contoh.scentapp.domain.model.CartItem
+import com.contoh.scentapp.domain.model.Order
+import com.contoh.scentapp.domain.model.OrderStatus
+import com.contoh.scentapp.domain.model.Parfum
+import com.contoh.scentapp.domain.model.ParfumFilter
+import com.contoh.scentapp.domain.model.Review
+import com.contoh.scentapp.domain.model.User
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
@@ -17,7 +17,7 @@ interface AuthRepository {
     suspend fun register(email: String, password: String, fullName: String): Result<User>
     suspend fun logout()
     suspend fun getCurrentUser(): User?
-    suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit> // ✅ BARU
+    suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit> // âœ… BARU
 }
 
 interface ProductRepository {

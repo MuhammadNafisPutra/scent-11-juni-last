@@ -1,4 +1,4 @@
-package com.contoh.scentapp.ui.review
+﻿package com.contoh.scentapp.ui.review
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.contoh.scentapp.data.model.Review
+import com.contoh.scentapp.domain.model.Review
 import com.contoh.scentapp.data.remote.CloudinaryUploader
 import com.contoh.scentapp.data.repository.ProductRepositoryImpl
 import com.contoh.scentapp.data.repository.ReviewRepository
@@ -42,7 +42,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-// ─── Slider Metrik Wewangian ──────────────────────────────────────────────────
+// â”€â”€â”€ Slider Metrik Wewangian â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun ScentMetricSlider(
@@ -150,7 +150,7 @@ private fun ScentMetricSlider(
     }
 }
 
-// ─── Bintang Rating ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Bintang Rating â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun StarRating(
@@ -172,7 +172,7 @@ private fun StarRating(
     }
 }
 
-// ─── Chip Foto ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Chip Foto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun PhotoChip(
@@ -211,7 +211,7 @@ private fun PhotoChip(
     }
 }
 
-// ─── Screen Utama ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Screen Utama â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 fun AddReviewScreen(
@@ -253,7 +253,7 @@ fun AddReviewScreen(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? -> if (uri != null && photoUris.size < 5) photoUris.add(uri) }
 
-    // Token warna adaptif — otomatis gelap/terang
+    // Token warna adaptif â€” otomatis gelap/terang
     val surface       = MaterialTheme.colorScheme.surfaceVariant
     val onSurface     = MaterialTheme.colorScheme.onSurface
     val outline       = MaterialTheme.colorScheme.outlineVariant
@@ -375,7 +375,7 @@ fun AddReviewScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
         ) {
-            // ── Top Bar ───────────────────────────────────────────────────────
+            // â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -406,7 +406,7 @@ fun AddReviewScreen(
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Spacer(Modifier.height(16.dp))
 
-                // ── Info Produk ───────────────────────────────────────────────
+                // â”€â”€ Info Produk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -426,7 +426,7 @@ fun AddReviewScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            "✦",
+                            "âœ¦",
                             style = MaterialTheme.typography.titleLarge.copy(
                                 color    = ScentGold,
                                 fontSize = 20.sp
@@ -461,7 +461,7 @@ fun AddReviewScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Rating Bintang ────────────────────────────────────────────
+                // â”€â”€ Rating Bintang â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 SectionCard(surface = surface, outline = outline) {
                     Text(
                         "PENILAIAN KESELURUHAN",
@@ -492,11 +492,11 @@ fun AddReviewScreen(
                         Spacer(Modifier.height(10.dp))
                         Text(
                             when (starRating) {
-                                1    -> "😞  Mengecewakan"
-                                2    -> "😐  Biasa saja"
-                                3    -> "🙂  Cukup baik"
-                                4    -> "😊  Bagus"
-                                else -> "🤩  Luar biasa!"
+                                1    -> "ðŸ˜ž  Mengecewakan"
+                                2    -> "ðŸ˜  Biasa saja"
+                                3    -> "ðŸ™‚  Cukup baik"
+                                4    -> "ðŸ˜Š  Bagus"
+                                else -> "ðŸ¤©  Luar biasa!"
                             },
                             style     = MaterialTheme.typography.bodySmall.copy(
                                 color      = ScentGold,
@@ -510,7 +510,7 @@ fun AddReviewScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Metrik Wewangian ──────────────────────────────────────────
+                // â”€â”€ Metrik Wewangian â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 SectionCard(surface = surface, outline = outline) {
                     Text(
                         "METRIK WEWANGIAN",
@@ -593,7 +593,7 @@ fun AddReviewScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Teks Ulasan ───────────────────────────────────────────────
+                // â”€â”€ Teks Ulasan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 SectionCard(surface = surface, outline = outline) {
                     Text(
                         "CERITAKAN PENGALAMANMU",
@@ -605,7 +605,7 @@ fun AddReviewScreen(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "Opsional — bantu pembeli lain dengan ulasan kamu",
+                        "Opsional â€” bantu pembeli lain dengan ulasan kamu",
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = onSurface.copy(alpha = 0.45f)
                         )
@@ -652,7 +652,7 @@ fun AddReviewScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Tambah Foto ───────────────────────────────────────────────
+                // â”€â”€ Tambah Foto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 SectionCard(surface = surface, outline = outline) {
                     Row(
                         modifier              = Modifier.fillMaxWidth(),
@@ -669,7 +669,7 @@ fun AddReviewScreen(
                                 )
                             )
                             Text(
-                                "Opsional — maks. 5 foto",
+                                "Opsional â€” maks. 5 foto",
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     color = onSurface.copy(alpha = 0.45f)
                                 )
@@ -731,13 +731,13 @@ fun AddReviewScreen(
         }
     }
 
-    // ── Dialog Berhasil Kirim ─────────────────────────────────────────────────
+    // â”€â”€ Dialog Berhasil Kirim â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (showSubmitDone) {
         AlertDialog(
             onDismissRequest = {},
             title = {
                 Text(
-                    "Ulasan Terkirim! ✦",
+                    "Ulasan Terkirim! âœ¦",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             },
@@ -763,7 +763,7 @@ fun AddReviewScreen(
     }
 }
 
-// ─── Helper composable ────────────────────────────────────────────────────────
+// â”€â”€â”€ Helper composable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun SectionCard(

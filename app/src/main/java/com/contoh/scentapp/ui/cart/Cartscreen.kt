@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.contoh.scentapp.R
-import com.contoh.scentapp.data.model.CartItem
+import com.contoh.scentapp.domain.model.CartItem
 import com.contoh.scentapp.ui.theme.*
 
 @Composable
@@ -34,7 +34,7 @@ fun CartScreen(
     onBack             : () -> Unit = {},
     onCheckout         : () -> Unit = {},
     onContinueShopping : () -> Unit = {},
-    viewModel          : CartViewModel = viewModel(factory = CartViewModelFactory())
+    viewModel          : CartViewModel = viewModel(factory = com.contoh.scentapp.di.ViewModelFactory.cartFactory())
 ) {
     val uiState   by viewModel.uiState.collectAsStateWithLifecycle()
     val listState  = rememberLazyListState()
@@ -260,7 +260,7 @@ private fun CartItemCard(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text  = "${item.aromaProfile} • ${item.volume}",
+                        text  = "${item.aromaProfile} â€¢ ${item.volume}",
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), lineHeight = 18.sp
                         )
@@ -286,7 +286,7 @@ private fun CartItemCard(
                         modifier         = Modifier.size(40.dp).clickable(onClick = onDecrease),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("−", style = MaterialTheme.typography.titleMedium.copy(color = onBg))
+                        Text("âˆ’", style = MaterialTheme.typography.titleMedium.copy(color = onBg))
                     }
                     Text(
                         text     = item.quantity.toString(),

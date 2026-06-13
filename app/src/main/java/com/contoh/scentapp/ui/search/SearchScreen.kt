@@ -36,9 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.contoh.scentapp.data.model.AromaFilter
-import com.contoh.scentapp.data.model.Product
-import com.contoh.scentapp.data.model.UsageFilter
+import com.contoh.scentapp.domain.model.AromaFilter
+import com.contoh.scentapp.domain.model.Product
+import com.contoh.scentapp.domain.model.UsageFilter
 import com.contoh.scentapp.ui.theme.ScentGold
 import com.contoh.scentapp.ui.theme.ScentTextPrimary
 
@@ -48,8 +48,12 @@ private enum class SearchPhase { FILTER, RESULTS }
 fun SearchScreen(
     initialQuery  : String = "",
     onBack        : () -> Unit,
-    onProductClick: (String) -> Unit = {},  // ← String
-    viewModel     : SearchViewModel = viewModel(factory = SearchViewModelFactory())
+    onProductClick: (String) -> Unit = {},  // <- String
+    viewModel     : SearchViewModel = viewModel(
+        factory = com.contoh.scentapp.di.ViewModelFactory.searchFactory(
+            androidx.compose.ui.platform.LocalContext.current.applicationContext as android.app.Application
+        )
+    )
 ) {
     val uiState    by viewModel.uiState.collectAsStateWithLifecycle()
     var localQuery by rememberSaveable { mutableStateOf(initialQuery) }
@@ -96,7 +100,7 @@ fun SearchScreen(
 
 @Composable
 private fun FilterPhase(
-    uiState       : com.contoh.scentapp.data.model.SearchUiState,
+    uiState       : com.contoh.scentapp.ui.state.SearchUiState,
     localQuery    : String,
     focusReq      : FocusRequester,
     listState     : androidx.compose.foundation.lazy.LazyListState,
@@ -124,7 +128,7 @@ private fun FilterPhase(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text  = "✦",
+                        text  = "âœ¦",
                         style = MaterialTheme.typography.displayLarge.copy(color = MaterialTheme.colorScheme.outlineVariant)
                     )
                     Spacer(Modifier.height(16.dp))
@@ -216,9 +220,9 @@ private fun FilterPhase(
 
 @Composable
 private fun ResultsPhase(
-    uiState        : com.contoh.scentapp.data.model.SearchUiState,
+    uiState        : com.contoh.scentapp.ui.state.SearchUiState,
     onBack         : () -> Unit,
-    onProductClick : (String) -> Unit,  // ← String
+    onProductClick : (String) -> Unit,  // â† String
     onFavToggle    : (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -277,7 +281,7 @@ private fun ResultsPhase(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text  = "✦",
+                                text  = "âœ¦",
                                 style = MaterialTheme.typography.displayLarge.copy(color = MaterialTheme.colorScheme.outlineVariant)
                             )
                             Spacer(Modifier.height(16.dp))
@@ -332,7 +336,7 @@ private fun FilterBadge(label: String) {
 @Composable
 private fun SearchProductRow(
     products       : List<Product>,
-    onProductClick : (String) -> Unit,  // ← String
+    onProductClick : (String) -> Unit,  // â† String
     onFavToggle    : (Int) -> Unit,
     modifier       : Modifier = Modifier
 ) {
@@ -343,7 +347,7 @@ private fun SearchProductRow(
         products.forEach { product ->
             SearchProductCard(
                 product     = product,
-                onClick     = { onProductClick(product.firestoreId) },  // ← firestoreId
+                onClick     = { onProductClick(product.firestoreId) },  // â† firestoreId
                 onFavToggle = { onFavToggle(product.id) },
                 modifier    = Modifier.weight(1f)
             )

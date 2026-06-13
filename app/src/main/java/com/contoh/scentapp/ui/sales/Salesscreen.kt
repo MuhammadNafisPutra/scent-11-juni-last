@@ -30,9 +30,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
-import com.contoh.scentapp.data.model.ActiveOrder
-import com.contoh.scentapp.data.model.OrderStatus
-import com.contoh.scentapp.data.model.SalesProduct
+import com.contoh.scentapp.domain.model.ActiveOrder
+import com.contoh.scentapp.domain.model.OrderStatus
+import com.contoh.scentapp.domain.model.SalesProduct
 import com.contoh.scentapp.ui.theme.*
 
 @Composable
@@ -41,7 +41,7 @@ fun SalesScreen(
     onAddProduct   : () -> Unit = {},
     onEditProduct  : (String) -> Unit = {},
     onOrderClick   : (String) -> Unit = {},
-    viewModel      : SalesViewModel = viewModel(factory = SalesViewModelFactory())
+    viewModel      : SalesViewModel = viewModel(factory = com.contoh.scentapp.di.ViewModelFactory.salesFactory())
 ) {
     val uiState      by viewModel.uiState.collectAsStateWithLifecycle()
     val resiDialogId by viewModel.resiDialogOrderId.collectAsStateWithLifecycle()
@@ -279,7 +279,7 @@ fun SalesScreen(
         )
     }
 
-    // ── Dialog Konfirmasi Hapus ───────────────────────────────────────────────
+    // â”€â”€ Dialog Konfirmasi Hapus â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     deleteConfirmProductId?.let { productId ->
         AlertDialog(
             onDismissRequest = { deleteConfirmProductId = null },
@@ -328,7 +328,7 @@ fun SalesScreen(
     }
 }
 
-// ── ResiInputDialog ───────────────────────────────────────────────────────────
+// â”€â”€ ResiInputDialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun ResiInputDialog(orderId: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
@@ -399,7 +399,7 @@ private fun ResiInputDialog(orderId: String, onConfirm: (String) -> Unit, onDism
     )
 }
 
-// ── StatCard ──────────────────────────────────────────────────────────────────
+// â”€â”€ StatCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun StatCard(label: String, value: String, subLabel: String = "", isLarge: Boolean) {
@@ -438,7 +438,7 @@ private fun StatCard(label: String, value: String, subLabel: String = "", isLarg
     }
 }
 
-// ── SalesProductItem — dengan AsyncImage ─────────────────────────────────────
+// â”€â”€ SalesProductItem â€” dengan AsyncImage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun SalesProductItem(
@@ -498,7 +498,7 @@ private fun SalesProductItem(
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                "${product.aromaFamily} • ${product.volume} • ${product.stockStatus}",
+                "${product.aromaFamily} â€¢ ${product.volume} â€¢ ${product.stockStatus}",
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = if (product.stockStatus == "STOK MENIPIS")
                         Color(0xFFD4A853)
@@ -542,7 +542,7 @@ private fun BottleIllustration(product: SalesProduct) {
     }
 }
 
-// ── ActiveOrderCard ───────────────────────────────────────────────────────────
+// â”€â”€ ActiveOrderCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun ActiveOrderCard(
@@ -584,7 +584,7 @@ private fun ActiveOrderCard(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "${order.buyerName} • ${order.itemCount} Item",
+                    "${order.buyerName} â€¢ ${order.itemCount} Item",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp),
                     color = MaterialTheme.colorScheme.onBackground
                 )

@@ -1,8 +1,8 @@
-package com.contoh.scentapp.data.repository
+﻿package com.contoh.scentapp.data.repository
 
 import android.content.Context
 import android.net.Uri
-import com.contoh.scentapp.data.model.Parfum
+import com.contoh.scentapp.domain.model.Parfum
 import com.contoh.scentapp.data.remote.CloudinaryUploader
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -20,7 +20,7 @@ class ProductRepositoryImpl(
         private const val COLLECTION = "parfums"
     }
 
-    // ── Upload gambar ke Cloudinary ──────────────────────────────────────────
+    // â”€â”€ Upload gambar ke Cloudinary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /**
      * Upload gambar produk ke Cloudinary.
@@ -30,7 +30,7 @@ class ProductRepositoryImpl(
         return CloudinaryUploader.upload(context, imageUri)
     }
 
-    // ── Tambah produk baru ke Firestore ──────────────────────────────────────
+    // â”€â”€ Tambah produk baru ke Firestore â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     suspend fun addParfum(parfum: Parfum): Result<Unit> {
         return try {
@@ -50,7 +50,7 @@ class ProductRepositoryImpl(
         }
     }
 
-    // ── Ambil semua produk (realtime) ────────────────────────────────────────
+    // â”€â”€ Ambil semua produk (realtime) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     fun getAllParfums(): Flow<List<Parfum>> = callbackFlow {
         val listener = firestore.collection(COLLECTION)
@@ -68,7 +68,7 @@ class ProductRepositoryImpl(
         awaitClose { listener.remove() }
     }
 
-    // ── Ambil produk milik seller yang sedang login (realtime) ───────────────
+    // â”€â”€ Ambil produk milik seller yang sedang login (realtime) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     fun getMyParfums(): Flow<List<Parfum>> = callbackFlow {
         val sellerId = auth.currentUser?.uid
@@ -99,7 +99,7 @@ class ProductRepositoryImpl(
         awaitClose { listener.remove() }
     }
 
-    // ── Update produk ────────────────────────────────────────────────────────
+    // â”€â”€ Update produk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     suspend fun updateParfum(parfum: Parfum): Result<Unit> {
         return try {
@@ -113,7 +113,7 @@ class ProductRepositoryImpl(
         }
     }
 
-    // ── Hapus produk ─────────────────────────────────────────────────────────
+    // â”€â”€ Hapus produk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     suspend fun deleteParfum(parfumId: String): Result<Unit> {
         return try {
@@ -127,7 +127,7 @@ class ProductRepositoryImpl(
         }
     }
 
-    // ── Ambil satu produk by ID ──────────────────────────────────────────────
+    // â”€â”€ Ambil satu produk by ID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     suspend fun getParfumById(parfumId: String): Result<Parfum> {
         return try {

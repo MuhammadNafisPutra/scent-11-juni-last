@@ -1,4 +1,4 @@
-package com.contoh.scentapp.ui.order
+﻿package com.contoh.scentapp.ui.order
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.contoh.scentapp.data.model.OrderStatus
+import com.contoh.scentapp.domain.model.OrderStatus
 import com.contoh.scentapp.ui.theme.*
 
 import androidx.lifecycle.ViewModel
@@ -30,7 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.contoh.scentapp.data.model.Order
+import com.contoh.scentapp.domain.model.Order
 import com.contoh.scentapp.data.repository.OrderRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -140,7 +140,7 @@ fun OrderHistoryScreen(
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // ── Top Bar ───────────────────────────────────────────────────────
+            // â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Row(
                 modifier = Modifier.fillMaxWidth().statusBarsPadding()
                     .padding(horizontal = 20.dp, vertical = 16.dp),
@@ -154,7 +154,7 @@ fun OrderHistoryScreen(
                 Spacer(Modifier.size(24.dp))
             }
 
-            // ── Tab Filter ────────────────────────────────────────────────────
+            // â”€â”€ Tab Filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             LazyRow(
                 contentPadding         = PaddingValues(horizontal = 20.dp),
                 horizontalArrangement  = Arrangement.spacedBy(8.dp),
@@ -192,7 +192,7 @@ fun OrderHistoryScreen(
                 }
             }
 
-            // ── Order List ────────────────────────────────────────────────────
+            // â”€â”€ Order List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = ScentGold)
@@ -256,7 +256,7 @@ private fun OrderHistoryCard(order: OrderHistoryDisplay, onClick: () -> Unit) {
                 Text("#SCNT-${order.id}", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(3.dp))
                 Text(order.productName, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 15.sp), color = MaterialTheme.colorScheme.onBackground)
-                Text("${order.volume} • ${order.paymentMethod}", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 11.sp))
+                Text("${order.volume} â€¢ ${order.paymentMethod}", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 11.sp))
             }
         }
 

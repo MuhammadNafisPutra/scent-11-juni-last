@@ -34,14 +34,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
 import com.contoh.scentapp.R
-import com.contoh.scentapp.data.model.Product
+import com.contoh.scentapp.domain.model.Product
 import com.contoh.scentapp.ui.theme.*
 
 @Composable
 fun FavoriteScreen(
     onBack         : () -> Unit = {},
     onProductClick : (String) -> Unit = {},
-    viewModel      : FavoriteViewModel = viewModel(factory = FavoriteViewModelFactory())
+    viewModel      : FavoriteViewModel = viewModel(factory = com.contoh.scentapp.di.ViewModelFactory.favoriteFactory())
 ) {
     val uiState  by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()

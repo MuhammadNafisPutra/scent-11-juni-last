@@ -1,4 +1,4 @@
-package com.contoh.scentapp.data.repository
+﻿package com.contoh.scentapp.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -9,7 +9,7 @@ class SessionManager private constructor(context: Context) {
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("ScentPrefs", Context.MODE_PRIVATE)
 
-    // ── Dark Mode ──────────────────────────────────────────────
+    // â”€â”€ Dark Mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private val _isDarkMode = MutableStateFlow(sharedPreferences.getBoolean("KEY_DARK_MODE", true))
     val isDarkMode: StateFlow<Boolean> = _isDarkMode
 
@@ -18,7 +18,7 @@ class SessionManager private constructor(context: Context) {
         _isDarkMode.value = enabled
     }
 
-    // ── Session / Login ────────────────────────────────────────
+    // â”€â”€ Session / Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     fun saveSession(email: String) {
         sharedPreferences.edit()
             .putString("KEY_EMAIL", email)

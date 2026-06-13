@@ -1,4 +1,4 @@
-package com.contoh.scentapp.data.remote
+﻿package com.contoh.scentapp.data.remote
 
 import android.content.Context
 import android.net.Uri
@@ -62,7 +62,7 @@ object CloudinaryUploader {
                 ?: return Result.failure(Exception("Response kosong dari Cloudinary"))
 
             if (!response.isSuccessful) {
-                return Result.failure(Exception("Upload gagal: HTTP ${response.code} — $responseBody"))
+                return Result.failure(Exception("Upload gagal: HTTP ${response.code} â€” $responseBody"))
             }
 
             val json = JSONObject(responseBody)

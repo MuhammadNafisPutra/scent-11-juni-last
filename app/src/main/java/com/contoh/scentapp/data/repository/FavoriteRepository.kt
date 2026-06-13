@@ -1,4 +1,4 @@
-package com.contoh.scentapp.data.repository
+﻿package com.contoh.scentapp.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,13 +17,13 @@ class FavoriteRepository(
     }
 
     // Dokumen struktur di Firestore:
-    // favorites/{userId}/items/{parfumId}  →  { parfumId: String, addedAt: Long }
+    // favorites/{userId}/items/{parfumId}  â†’  { parfumId: String, addedAt: Long }
 
     private fun userFavoritesRef(userId: String) =
         firestore.collection(COLLECTION).document(userId).collection("items")
 
     /**
-     * Observe daftar ID parfum yang difavoritkan user saat ini — realtime.
+     * Observe daftar ID parfum yang difavoritkan user saat ini â€” realtime.
      * Return Flow<Set<String>> berisi parfumId.
      */
     fun getFavoriteIds(): Flow<Set<String>> = callbackFlow {
@@ -86,7 +86,7 @@ class FavoriteRepository(
     }
 
     /**
-     * Toggle favorit — tambah jika belum ada, hapus jika sudah ada.
+     * Toggle favorit â€” tambah jika belum ada, hapus jika sudah ada.
      */
     suspend fun toggleFavorite(parfumId: String, currentlyFavorited: Boolean): Result<Unit> {
         return if (currentlyFavorited) removeFavorite(parfumId) else addFavorite(parfumId)

@@ -1,13 +1,13 @@
 package com.contoh.scentapp.ui.sales
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.contoh.scentapp.data.model.ActiveOrder
-import com.contoh.scentapp.data.model.OrderStatus
-import com.contoh.scentapp.data.model.SalesProduct
-import com.contoh.scentapp.data.model.SalesUiState
-import com.contoh.scentapp.data.repository.ProductRepositoryImpl
+import com.contoh.scentapp.domain.model.ActiveOrder
+import com.contoh.scentapp.domain.model.OrderStatus
+import com.contoh.scentapp.domain.model.SalesProduct
+import com.contoh.scentapp.ui.state.SalesUiState
+import com.contoh.scentapp.domain.usecase.product.GetSellerProductsUseCase
+import com.contoh.scentapp.domain.usecase.product.DeleteProductUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 import kotlin.collections.map
 
 class SalesViewModel(
-    private val repository: ProductRepositoryImpl = ProductRepositoryImpl()
+    private val getSellerProductsUseCase: GetSellerProductsUseCase,
+    private val deleteProductUseCase: DeleteProductUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SalesUiState())
@@ -32,8 +33,7 @@ class SalesViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            // Load produk milik seller dari Firestore (realtime)
-            repository.getMyParfums()
+            getSellerProductsUseCase()
                 .catch { e ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
                 }
@@ -68,20 +68,15 @@ class SalesViewModel(
         }
     }
 
-    // ── Hapus produk dari Firestore ───────────────────────────────────────────
-
     fun deleteProduct(productId: Int) {
         val product = _uiState.value.products.find { it.id == productId } ?: return
         viewModelScope.launch {
-            val result = repository.deleteParfum(product.firestoreId)
+            val result = deleteProductUseCase(product.firestoreId)
             if (result.isFailure) {
                 _uiState.update { it.copy(errorMessage = result.exceptionOrNull()?.message) }
             }
-            // Jika sukses, list otomatis update karena getMyParfums() adalah Flow realtime
         }
     }
-
-    // ── Order management (masih in-memory, siap untuk Firestore nanti) ────────
 
     fun konfirmasiPembayaran(orderId: String) {
         _uiState.update { state ->
@@ -140,16 +135,5 @@ class SalesViewModel(
 
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
-    }
-
-}
-
-class SalesViewModelFactory : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(SalesViewModel::class.java)) {
-            return SalesViewModel() as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

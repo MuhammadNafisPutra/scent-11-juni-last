@@ -1,24 +1,23 @@
-package com.contoh.scentapp.ui.home
+﻿package com.contoh.scentapp.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.contoh.scentapp.data.model.HeroBanner
-import com.contoh.scentapp.data.model.HomeUiState
-import com.contoh.scentapp.data.model.Product
-import com.contoh.scentapp.data.repository.FavoriteRepository
-import com.contoh.scentapp.data.repository.ProductRepositoryImpl
+import com.contoh.scentapp.domain.model.HeroBanner
+import com.contoh.scentapp.ui.state.HomeUiState
+import com.contoh.scentapp.domain.model.Product
+import com.contoh.scentapp.domain.usecase.GetHomeProductsUseCase
+import com.contoh.scentapp.domain.usecase.ToggleFavoriteUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val productRepo  : ProductRepositoryImpl = ProductRepositoryImpl(),
-    private val favoriteRepo : FavoriteRepository    = FavoriteRepository()
+    private val getHomeProductsUseCase: GetHomeProductsUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -30,30 +29,7 @@ class HomeViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            // Gabungkan stream produk + stream favorit secara realtime
-            combine(
-                productRepo.getAllParfums(),
-                favoriteRepo.getFavoriteIds()
-            ) { parfumList, favoriteIds ->
-                parfumList.map { parfum ->
-                    Product(
-                        id           = parfum.id.hashCode(),
-                        firestoreId  = parfum.id,
-                        brand        = parfum.brand,
-                        name         = parfum.name,
-                        price        = "Rp${"%,d".format(parfum.price).replace(',', '.')}",
-                        volume       = "${parfum.sizes.firstOrNull() ?: 50}ml",
-                        imageUrl     = parfum.imageUrl,
-                        cardColor    = 0xFF1A1A1A,
-                        accentColor  = 0xFFD4A853,
-                        isFavorite   = parfum.id in favoriteIds,
-                        description  = parfum.description,
-                        aromaProfile = listOf(parfum.olfactoryFamily),
-                        rating       = parfum.avgLongevity,
-                        reviewCount  = parfum.reviewCount
-                    )
-                }
-            }
+            getHomeProductsUseCase()
                 .catch { e ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
                 }
@@ -72,8 +48,7 @@ class HomeViewModel(
     fun toggleFavorite(productId: Int) {
         val product = _uiState.value.products.find { it.id == productId } ?: return
         viewModelScope.launch {
-            // Firestore update — UI otomatis reaktif karena combine() di atas
-            favoriteRepo.toggleFavorite(
+            toggleFavoriteUseCase(
                 parfumId           = product.firestoreId,
                 currentlyFavorited = product.isFavorite
             )
@@ -90,11 +65,14 @@ class HomeViewModel(
     )
 }
 
-class HomeViewModelFactory : ViewModelProvider.Factory {
+class HomeViewModelFactory(
+    private val getHomeProductsUseCase: GetHomeProductsUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase
+) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            return HomeViewModel() as T
+            return HomeViewModel(getHomeProductsUseCase, toggleFavoriteUseCase) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

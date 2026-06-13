@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
-import com.contoh.scentapp.data.model.Product
-import com.contoh.scentapp.data.model.Review
-import com.contoh.scentapp.data.model.SizeOption
+import com.contoh.scentapp.domain.model.Product
+import com.contoh.scentapp.domain.model.Review
+import com.contoh.scentapp.domain.model.SizeOption
 import com.contoh.scentapp.ui.theme.*
 import kotlin.math.roundToInt
 
@@ -46,8 +46,8 @@ fun DetailScreen(
     onBack           : () -> Unit,
     onNavigateToCart : () -> Unit,
     onWriteReview    : () -> Unit = {},
-    viewModel        : DetailViewModel = viewModel(
-        factory = DetailViewModel.DetailViewModelFactory(firestoreId)  // ← firestoreId
+    viewModel: DetailViewModel = viewModel(
+        factory = com.contoh.scentapp.di.ViewModelFactory.detailFactory(firestoreId)
     )
 ) {
     val uiState        by viewModel.uiState.collectAsStateWithLifecycle()
@@ -144,7 +144,7 @@ fun DetailScreen(
     }
 }
 
-// ── TopBar ────────────────────────────────────────────────────────────────────
+// â”€â”€ TopBar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun DetailTopBar(onBack: () -> Unit, onCartClick: () -> Unit) {
@@ -178,7 +178,7 @@ private fun DetailTopBar(onBack: () -> Unit, onCartClick: () -> Unit) {
     }
 }
 
-// ── ProductImageSection ───────────────────────────────────────────────────────
+// â”€â”€ ProductImageSection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun ProductImageSection(product: Product, modifier: Modifier = Modifier) {
@@ -275,7 +275,7 @@ private fun DetailBottleIllustration(product: Product) {
     }
 }
 
-// ── ProductInfoSection ────────────────────────────────────────────────────────
+// â”€â”€ ProductInfoSection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun ProductInfoSection(product: Product, modifier: Modifier = Modifier) {
@@ -312,7 +312,7 @@ private fun ProductInfoSection(product: Product, modifier: Modifier = Modifier) 
     }
 }
 
-// ── SizeSelectorSection ───────────────────────────────────────────────────────
+// â”€â”€ SizeSelectorSection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun SizeSelectorSection(
@@ -362,7 +362,7 @@ private fun SizeSelectorSection(
     }
 }
 
-// ── AddToCartButton ───────────────────────────────────────────────────────────
+// â”€â”€ AddToCartButton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun AddToCartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -384,7 +384,7 @@ private fun AddToCartButton(onClick: () -> Unit, modifier: Modifier = Modifier) 
     }
 }
 
-// ── ReviewsHeader ─────────────────────────────────────────────────────────────
+// â”€â”€ ReviewsHeader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun ReviewsHeader(product: Product, onWriteReview: () -> Unit = {}, modifier: Modifier = Modifier) {
@@ -426,7 +426,7 @@ private fun ReviewsHeader(product: Product, onWriteReview: () -> Unit = {}, modi
     }
 }
 
-// ── ReviewCard ────────────────────────────────────────────────────────────────
+// â”€â”€ ReviewCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun ReviewCard(review: Review, modifier: Modifier = Modifier) {

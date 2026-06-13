@@ -1,20 +1,22 @@
 package com.contoh.scentapp.ui.profile
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import com.contoh.scentapp.data.repository.LanguageManager
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.contoh.scentapp.domain.usecase.profile.GetLanguageUseCase
+import com.contoh.scentapp.domain.usecase.profile.SetLanguageUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class LanguageViewModel(application: Application) : AndroidViewModel(application) {
+class LanguageViewModel(
+    private val getLanguageUseCase: GetLanguageUseCase,
+    private val setLanguageUseCase: SetLanguageUseCase
+) : ViewModel() {
 
-    private val languageManager = LanguageManager.getInstance(application)
-
-    private val _selectedLang = MutableStateFlow(languageManager.selectedLanguage)
+    private val _selectedLang = MutableStateFlow(getLanguageUseCase())
     val selectedLang: StateFlow<String> = _selectedLang
 
     fun setLanguage(langCode: String) {
         _selectedLang.value = langCode
-        languageManager.applyLanguage(langCode) // Simpan + terapkan sekaligus
+        setLanguageUseCase(langCode)
     }
 }

@@ -32,16 +32,16 @@
     import androidx.lifecycle.viewmodel.compose.viewModel
     import coil.compose.SubcomposeAsyncImage
     import com.contoh.scentapp.R
-    import com.contoh.scentapp.data.model.HeroBanner
-    import com.contoh.scentapp.data.model.HomeUiState
-    import com.contoh.scentapp.data.model.Product
+    import com.contoh.scentapp.domain.model.HeroBanner
+    import com.contoh.scentapp.ui.state.HomeUiState
+    import com.contoh.scentapp.domain.model.Product
     import com.contoh.scentapp.ui.theme.*
 
     @Composable
     fun HomeScreen(
-        onProductClick : (String) -> Unit = {},  // ← String (firestoreId)
+        onProductClick : (String) -> Unit = {},  // â† String (firestoreId)
         onSearchClick  : () -> Unit       = {},
-        viewModel      : HomeViewModel    = viewModel(factory = HomeViewModelFactory())
+        viewModel      : HomeViewModel    = viewModel(factory = com.contoh.scentapp.di.ViewModelFactory.homeFactory())
     ) {
         val uiState   by viewModel.uiState.collectAsStateWithLifecycle()
         val listState : LazyListState = rememberLazyListState()
@@ -88,7 +88,7 @@
         uiState          : HomeUiState,
         listState        : LazyListState,
         onSearchClick    : () -> Unit,
-        onProductClick   : (String) -> Unit,  // ← String
+        onProductClick   : (String) -> Unit,  // â† String
         onFavoriteToggle : (Int) -> Unit
     ) {
         LazyColumn(
@@ -288,7 +288,7 @@
     @Composable
     private fun ProductRow(
         products         : List<Product>,
-        onProductClick   : (String) -> Unit,  // ← String
+        onProductClick   : (String) -> Unit,  // â† String
         onFavoriteToggle : (Int) -> Unit,
         modifier         : Modifier = Modifier
     ) {
@@ -299,7 +299,7 @@
             products.forEach { product ->
                 ProductCard(
                     product          = product,
-                    onClick          = { onProductClick(product.firestoreId) },  // ← firestoreId
+                    onClick          = { onProductClick(product.firestoreId) },  // â† firestoreId
                     onFavoriteToggle = { onFavoriteToggle(product.id) },
                     modifier         = Modifier.weight(1f)
                 )

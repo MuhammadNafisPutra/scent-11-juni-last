@@ -1,24 +1,27 @@
 package com.contoh.scentapp.ui.cart
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.contoh.scentapp.data.model.CartItem
-import com.contoh.scentapp.data.repository.CartRepository
+import com.contoh.scentapp.domain.model.CartItem
+import com.contoh.scentapp.domain.usecase.cart.GetCartItemsUseCase
+import com.contoh.scentapp.domain.usecase.cart.UpdateCartQuantityUseCase
+import com.contoh.scentapp.domain.usecase.cart.RemoveFromCartUseCase
+import com.contoh.scentapp.domain.usecase.cart.ClearCartUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class CartUiState(
     val items     : List<CartItem> = emptyList(),
-    val isLoading : Boolean        = true
+    val isLoading : Boolean        = true,
+    val totalPrice: String         = "Rp0",
+    val totalPriceLong: Long       = 0L
 ) {
     val isEmpty       : Boolean get() = items.isEmpty()
     val totalItems    : Int     get() = items.sumOf { it.quantity }
-    val subtotal      : Int     get() = items.sumOf { it.totalPrice }
+    val subtotal      : Int     get() = items.sumOf { it.pricePerItem * it.quantity }
     val shippingCost  : Int     get() = 0
     val estimasiTotal : Int     get() = subtotal + shippingCost
 
@@ -31,34 +34,44 @@ data class CartUiState(
 }
 
 class CartViewModel(
-    private val repository: CartRepository = CartRepository.getInstance()
+    private val getCartItemsUseCase: GetCartItemsUseCase,
+    private val updateCartQuantityUseCase: UpdateCartQuantityUseCase,
+    private val removeFromCartUseCase: RemoveFromCartUseCase,
+    private val clearCartUseCase: ClearCartUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartUiState())
     val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
 
-    init { observeCart() }
-
-    private fun observeCart() {
+    init {
         viewModelScope.launch {
-            repository.cartItems.collect { items ->
-                _uiState.update { it.copy(items = items, isLoading = false) }
+            getCartItemsUseCase().collect { items ->
+                val total = items.sumOf { it.pricePerItem * it.quantity }
+                _uiState.update {
+                    it.copy(
+                        items      = items,
+                        isLoading  = false,
+                        totalPrice = "Rp${"%,d".format(total).replace(',', '.')}",
+                        totalPriceLong = total.toLong()
+                    )
+                }
             }
         }
     }
 
-    fun increaseQty(productId: Int) { repository.increaseQuantity(productId) }
-    fun decreaseQty(productId: Int) { repository.decreaseQuantity(productId) }
-    fun removeItem(productId: Int)  { repository.removeFromCart(productId) }
-    fun clearCart()                 { repository.clearCart() }
-}
+    fun increaseQty(productId: Int) {
+        updateCartQuantityUseCase(productId, 1)
+    }
 
-class CartViewModelFactory : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CartViewModel::class.java)) {
-            return CartViewModel() as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+    fun decreaseQty(productId: Int) {
+        updateCartQuantityUseCase(productId, -1)
+    }
+
+    fun removeItem(productId: Int) {
+        removeFromCartUseCase(productId)
+    }
+
+    fun clearCart() {
+        clearCartUseCase()
     }
 }

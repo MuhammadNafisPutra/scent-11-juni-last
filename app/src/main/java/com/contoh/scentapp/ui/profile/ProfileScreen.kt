@@ -54,7 +54,7 @@ fun ProfileScreen(
     val context        = LocalContext.current
     val application    = context.applicationContext as Application
     val viewModel: ProfileViewModel = viewModel(
-        factory = ProfileViewModelFactory(application)
+        factory = com.contoh.scentapp.di.ViewModelFactory.profileFactory(application)
     )
     val uiState        by viewModel.uiState.collectAsStateWithLifecycle()
     val listState       = rememberLazyListState()
@@ -115,7 +115,7 @@ fun ProfileScreen(
                         .padding(horizontal = 20.dp, vertical = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // ✅ FIX: Tampilkan foto profil jika ada, fallback ke icon Person
+                    // âœ… FIX: Tampilkan foto profil jika ada, fallback ke icon Person
                     Box(
                         modifier = Modifier
                             .size(90.dp)

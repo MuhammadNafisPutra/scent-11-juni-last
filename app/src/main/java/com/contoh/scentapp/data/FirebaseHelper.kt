@@ -1,4 +1,4 @@
-package com.contoh.scentapp.data
+﻿package com.contoh.scentapp.data
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

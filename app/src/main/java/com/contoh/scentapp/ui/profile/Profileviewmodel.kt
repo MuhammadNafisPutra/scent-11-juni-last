@@ -1,25 +1,18 @@
 package com.contoh.scentapp.ui.profile
 
-import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.contoh.scentapp.data.model.ProfileUiState
-import com.contoh.scentapp.data.remote.CloudinaryUploader
-import com.contoh.scentapp.data.repository.AuthRepositoryImpl
-import com.contoh.scentapp.data.repository.LanguageManager
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
+import com.contoh.scentapp.ui.state.ProfileUiState
+import com.contoh.scentapp.domain.usecase.auth.GetCurrentUserUseCase
+import com.contoh.scentapp.domain.usecase.auth.UpdatePasswordUseCase
+import com.contoh.scentapp.domain.usecase.profile.UpdateProfileUseCase
+import com.contoh.scentapp.domain.usecase.profile.GetLanguageUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 sealed class UpdatePasswordState {
     object Idle    : UpdatePasswordState()
@@ -28,16 +21,16 @@ sealed class UpdatePasswordState {
     data class Error(val message: String) : UpdatePasswordState()
 }
 
-class ProfileViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val languageManager = LanguageManager.getInstance(application)
-    private val authRepository  = AuthRepositoryImpl.getInstance()
-    private val firestore       = FirebaseFirestore.getInstance()
-    private val firebaseAuth    = FirebaseAuth.getInstance()
+class ProfileViewModel(
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val updateProfileUseCase: UpdateProfileUseCase,
+    private val updatePasswordUseCase: UpdatePasswordUseCase,
+    private val getLanguageUseCase: GetLanguageUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         ProfileUiState(
-            language = getLanguageLabel(languageManager.selectedLanguage)
+            language = getLanguageLabel(getLanguageUseCase())
         )
     )
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -45,7 +38,6 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _updatePasswordState = MutableStateFlow<UpdatePasswordState>(UpdatePasswordState.Idle)
     val updatePasswordState: StateFlow<UpdatePasswordState> = _updatePasswordState.asStateFlow()
 
-    // ✅ BARU: State untuk sinyal navigasi balik setelah simpan profil berhasil
     private val _profileUpdateSuccess = MutableStateFlow(false)
     val profileUpdateSuccess: StateFlow<Boolean> = _profileUpdateSuccess.asStateFlow()
 
@@ -53,11 +45,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         loadCurrentUser()
     }
 
-    // ── Fetch user dari Firestore ──────────────────────────────────────────
     private fun loadCurrentUser() {
         viewModelScope.launch {
             try {
-                val user = authRepository.getCurrentUser()
+                val user = getCurrentUserUseCase()
                 if (user != null) {
                     _uiState.update {
                         it.copy(
@@ -71,28 +62,11 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    // ── Update profil ke Firestore ─────────────────────────────────────────
     fun updateProfileWithPhoto(fullName: String, email: String, photoUri: Uri?) {
         viewModelScope.launch {
-            try {
-                val uid = authRepository.currentUserId ?: return@launch
-
-                val imageUrl = if (photoUri != null) {
-                    withContext(Dispatchers.IO) {
-                        CloudinaryUploader.upload(getApplication(), photoUri).getOrNull()
-                    }
-                } else null
-
-                val updates = mutableMapOf<String, Any>(
-                    "fullName" to fullName,
-                    "email"    to email
-                )
-                if (imageUrl != null) updates["profileImageUrl"] = imageUrl
-
-                firestore.collection("users").document(uid)
-                    .update(updates)
-                    .await()
-
+            val result = updateProfileUseCase(fullName, email, photoUri)
+            if (result.isSuccess) {
+                val imageUrl = result.getOrNull()
                 _uiState.update {
                     it.copy(
                         fullName        = fullName,
@@ -100,20 +74,15 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                         profileImageUrl = imageUrl ?: it.profileImageUrl
                     )
                 }
-
-                // ✅ BARU: Emit sukses setelah semua selesai
                 _profileUpdateSuccess.value = true
-
-            } catch (e: Exception) { }
+            }
         }
     }
 
-    // ✅ BARU: Reset setelah Screen menangkap event sukses
     fun resetProfileUpdateSuccess() {
         _profileUpdateSuccess.value = false
     }
 
-    // ── Update password langsung ───────────────────────────────────────────
     fun updatePassword(currentPassword: String, newPassword: String, confirmPassword: String) {
         if (currentPassword.isBlank() || newPassword.isBlank() || confirmPassword.isBlank()) {
             _updatePasswordState.value = UpdatePasswordState.Error("Semua field harus diisi")
@@ -134,7 +103,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
         viewModelScope.launch {
             _updatePasswordState.value = UpdatePasswordState.Loading
-            val result = authRepository.updatePassword(currentPassword, newPassword)
+            val result = updatePasswordUseCase(currentPassword, newPassword)
             _updatePasswordState.value = if (result.isSuccess) {
                 UpdatePasswordState.Success
             } else {
@@ -179,17 +148,5 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun confirmDeleteAccount() {
         viewModelScope.launch { hideDeleteDialog() }
-    }
-}
-
-class ProfileViewModelFactory(
-    private val application: Application
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
-            return ProfileViewModel(application) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

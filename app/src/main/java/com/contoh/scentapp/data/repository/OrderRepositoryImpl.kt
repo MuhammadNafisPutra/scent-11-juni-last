@@ -1,7 +1,7 @@
-package com.contoh.scentapp.data.repository
+﻿package com.contoh.scentapp.data.repository
 
-import com.contoh.scentapp.data.model.Order
-import com.contoh.scentapp.data.model.OrderStatus
+import com.contoh.scentapp.domain.model.Order
+import com.contoh.scentapp.domain.model.OrderStatus
 import com.contoh.scentapp.domain.OrderRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

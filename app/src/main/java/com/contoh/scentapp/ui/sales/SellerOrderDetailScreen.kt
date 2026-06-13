@@ -1,4 +1,4 @@
-package com.contoh.scentapp.ui.sales
+﻿package com.contoh.scentapp.ui.sales
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.contoh.scentapp.data.model.OrderStatus
+import com.contoh.scentapp.domain.model.OrderStatus
 import com.contoh.scentapp.ui.theme.*
 
 @Composable
@@ -45,7 +45,7 @@ fun SellerOrderDetailScreen(
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 120.dp)) {
 
-            // ── Top Bar ───────────────────────────────────────────────────────
+            // â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Row(
                 modifier = Modifier.fillMaxWidth().statusBarsPadding()
                     .padding(horizontal = 20.dp, vertical = 16.dp),
@@ -83,7 +83,7 @@ fun SellerOrderDetailScreen(
 
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
 
-                // ── Status Banner ─────────────────────────────────────────────
+                // â”€â”€ Status Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 val statusColor = when (status) {
                     OrderStatus.MENUNGGU_KONFIRMASI       -> Color(0xFFD4A853)
                     OrderStatus.PEMBAYARAN_DIKONFIRMASI   -> Color(0xFF4CAF50)
@@ -112,7 +112,7 @@ fun SellerOrderDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Order Info ────────────────────────────────────────────────
+                // â”€â”€ Order Info â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 SellerSectionCard {
                     SellerInfoRow(label = "ORDER ID",       value = "#SCNT-$orderId")
                     SDivider()
@@ -125,7 +125,7 @@ fun SellerOrderDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Alamat Pengiriman ─────────────────────────────────────────
+                // â”€â”€ Alamat Pengiriman â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 SellerSectionCard {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("ALAMAT PENGIRIMAN", style = MaterialTheme.typography.labelSmall.copy(
@@ -139,7 +139,7 @@ fun SellerOrderDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Produk Pesanan ────────────────────────────────────────────
+                // â”€â”€ Produk Pesanan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 SellerSectionCard {
                     Text("PRODUK DIPESAN", style = MaterialTheme.typography.labelSmall.copy(
                         fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
@@ -147,7 +147,7 @@ fun SellerOrderDetailScreen(
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text("NOIR OBSCUR", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 15.sp), color = MaterialTheme.colorScheme.onBackground)
-                            Text("BOUTIQUE SERIES • 50ML • 1 pcs", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)))
+                            Text("BOUTIQUE SERIES â€¢ 50ML â€¢ 1 pcs", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)))
                         }
                         Text("Rp 240.000", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground))
                     }
@@ -177,7 +177,7 @@ fun SellerOrderDetailScreen(
             }
         }
 
-        // ── Action Buttons ────────────────────────────────────────────────────
+        // â”€â”€ Action Buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background).padding(horizontal = 20.dp, vertical = 16.dp).navigationBarsPadding()
@@ -236,7 +236,7 @@ fun SellerOrderDetailScreen(
         }
     }
 
-    // ── Resi Dialog ───────────────────────────────────────────────────────────
+    // â”€â”€ Resi Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (showResiDialog) {
         var resiInput by remember { mutableStateOf(noResi) }
         AlertDialog(

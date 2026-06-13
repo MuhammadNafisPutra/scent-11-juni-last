@@ -28,24 +28,32 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.contoh.scentapp.data.model.ShippingOption
+import com.contoh.scentapp.domain.model.ShippingOption
 import com.contoh.scentapp.data.repository.CartRepository
 import com.contoh.scentapp.ui.theme.*
+
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun ShippingScreen(
     onBack: () -> Unit = {},
-    onConfirm: (isTransfer: Boolean) -> Unit = {}
+    onConfirm: (isTransfer: Boolean) -> Unit = {},
+    viewModel: ShippingViewModel = viewModel()
 ) {
     val repository = CartRepository.getInstance()
     val listState = rememberLazyListState()
+    
+    val shippingOptions by viewModel.shippingOptions.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    
     var selectedId by rememberSaveable { mutableStateOf("jnt") }
-    val shippingOptions = repository.shippingOptions
-    val selectedOption = shippingOptions.find { it.id == selectedId } ?: shippingOptions.first()
+    
+    // Ensure selected option exists
+    val selectedOption = shippingOptions.find { it.id == selectedId } ?: shippingOptions.firstOrNull()
     var isTransfer by rememberSaveable { mutableStateOf(false) }
     val cartItems by repository.cartItems.collectAsState(initial = emptyList())
     val subtotal = cartItems.sumOf { it.totalPrice }
-    val shippingFee = selectedOption.price
+    val shippingFee = selectedOption?.price ?: 0
     val total = subtotal + shippingFee
 
     fun formatRp(value: Int) = "Rp ${"%,d".format(value).replace(",", ".")}"
@@ -114,11 +122,18 @@ fun ShippingScreen(
                     )
                 }
             }
-            items(
-                count = shippingOptions.size,
-                key = { shippingOptions[it].id }
-            ) { index ->
-                val option = shippingOptions[index]
+            if (isLoading) {
+                item(key = "loading") {
+                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onBackground)
+                    }
+                }
+            } else {
+                items(
+                    count = shippingOptions.size,
+                    key = { shippingOptions[it].id }
+                ) { index ->
+                    val option = shippingOptions[index]
                 val isSelected = option.id == selectedId
 
                 val borderColor by animateColorAsState(
@@ -204,6 +219,7 @@ fun ShippingScreen(
                         )
                     }
                 }
+            }
             }
             item(key = "payment_method") {
                 Spacer(Modifier.height(24.dp))

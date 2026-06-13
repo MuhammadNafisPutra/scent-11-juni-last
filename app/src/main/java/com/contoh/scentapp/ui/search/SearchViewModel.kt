@@ -1,30 +1,35 @@
 package com.contoh.scentapp.ui.search
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.contoh.scentapp.data.model.AromaFilter
-import com.contoh.scentapp.data.model.Product
-import com.contoh.scentapp.data.model.SearchUiState
-import com.contoh.scentapp.data.model.UsageFilter
-import com.contoh.scentapp.data.repository.FavoriteRepository
-import com.contoh.scentapp.data.repository.ProductRepositoryImpl
+import com.contoh.scentapp.domain.model.AromaFilter
+import com.contoh.scentapp.domain.model.Product
+import com.contoh.scentapp.ui.state.SearchUiState
+import com.contoh.scentapp.domain.model.UsageFilter
+import com.contoh.scentapp.domain.usecase.product.GetAllProductsUseCase
+import com.contoh.scentapp.domain.usecase.ToggleFavoriteUseCase
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+import com.contoh.scentapp.domain.usecase.search.AddSearchQueryUseCase
+import com.contoh.scentapp.domain.usecase.search.ClearSearchHistoryUseCase
+import com.contoh.scentapp.domain.usecase.search.GetRecentSearchesUseCase
+
 @OptIn(FlowPreview::class)
 class SearchViewModel(
-    private val productRepo  : ProductRepositoryImpl = ProductRepositoryImpl(),
-    private val favoriteRepo : FavoriteRepository    = FavoriteRepository()
+    private val getAllProductsUseCase: GetAllProductsUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val getRecentSearchesUseCase: GetRecentSearchesUseCase,
+    private val addSearchQueryUseCase: AddSearchQueryUseCase,
+    private val clearSearchHistoryUseCase: ClearSearchHistoryUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -32,9 +37,8 @@ class SearchViewModel(
 
     init {
         observeProducts()
+        observeRecentSearches()
 
-        // Re-jalankan filter/pencarian setiap kali query atau filter berubah,
-        // dengan debounce supaya tidak terlalu sering saat user mengetik.
         viewModelScope.launch {
             _uiState
                 .map { Triple(it.query, it.selectedAromaFilters, it.selectedUsage) }
@@ -44,43 +48,24 @@ class SearchViewModel(
         }
     }
 
-    /**
-     * Sinkronkan daftar produk dari Firestore (sama seperti Home),
-     * sehingga pencarian selalu mencocokkan produk yang benar-benar ada/sudah ditambahkan.
-     */
+    private fun observeRecentSearches() {
+        viewModelScope.launch {
+            getRecentSearchesUseCase().collect { history ->
+                _uiState.update { it.copy(recentSearches = history) }
+            }
+        }
+    }
+
     private fun observeProducts() {
         viewModelScope.launch {
-            combine(
-                productRepo.getAllParfums(),
-                favoriteRepo.getFavoriteIds()
-            ) { parfumList, favoriteIds ->
-                parfumList.map { parfum ->
-                    Product(
-                        id           = parfum.id.hashCode(),
-                        firestoreId  = parfum.id,
-                        brand        = parfum.brand,
-                        name         = parfum.name,
-                        price        = "Rp${"%,d".format(parfum.price).replace(',', '.')}",
-                        volume       = "${parfum.sizes.firstOrNull() ?: 50}ml",
-                        imageUrl     = parfum.imageUrl,
-                        cardColor    = 0xFF1A1A1A,
-                        accentColor  = 0xFFD4A853,
-                        isFavorite   = parfum.id in favoriteIds,
-                        description  = parfum.description,
-                        aromaProfile = listOf(parfum.olfactoryFamily).filter { it.isNotBlank() },
-                        usage        = parfum.usage,          // ← petakan field usage
-                        rating       = parfum.avgLongevity,
-                        reviewCount  = parfum.reviewCount
-                    )
-                }
-            }
+            getAllProductsUseCase()
                 .catch { _uiState.update { it.copy(isLoading = false) } }
                 .collect { products ->
                     _uiState.update { state ->
                         state.copy(
                             allProducts  = products,
                             aromaFilters = buildAromaFilters(products),
-                            usageFilters = buildUsageFilters(products),  // ← populate usageFilters
+                            usageFilters = buildUsageFilters(products),
                             isLoading    = false
                         )
                     }
@@ -89,10 +74,6 @@ class SearchViewModel(
         }
     }
 
-    /**
-     * Bangun daftar chip filter aroma HANYA dari profil aroma produk yang
-     * benar-benar ada saat ini.
-     */
     private fun buildAromaFilters(products: List<Product>): List<AromaFilter> {
         return products
             .flatMap { it.aromaProfile }
@@ -104,10 +85,6 @@ class SearchViewModel(
             .map { AromaFilter(id = it, label = it) }
     }
 
-    /**
-     * Bangun daftar filter waktu penggunaan dari data produk yang ada.
-     * Urutkan: SIANG → MALAM → KEDUANYA sehingga tampil konsisten.
-     */
     private fun buildUsageFilters(products: List<Product>): List<UsageFilter> {
         val order = listOf("SIANG", "MALAM", "KEDUANYA")
         val existing = products
@@ -119,9 +96,9 @@ class SearchViewModel(
             .filter { it in existing }
             .map { usage ->
                 val label = when (usage) {
-                    "SIANG"    -> "☀ SIANG"
+                    "SIANG"    -> "☀️ SIANG"
                     "MALAM"    -> "🌙 MALAM"
-                    "KEDUANYA" -> "✦ KEDUANYA"
+                    "KEDUANYA" -> "✨ KEDUANYA"
                     else       -> usage
                 }
                 UsageFilter(id = usage, label = label)
@@ -163,10 +140,16 @@ class SearchViewModel(
             val product  = state.allProducts.find { it.id == productId }
                 ?: state.results.find { it.id == productId }
                 ?: return@launch
-            favoriteRepo.toggleFavorite(
+            toggleFavoriteUseCase(
                 parfumId           = product.firestoreId,
                 currentlyFavorited = product.isFavorite
             )
+        }
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            clearSearchHistoryUseCase()
         }
     }
 
@@ -180,19 +163,17 @@ class SearchViewModel(
                     p.aromaProfile.any { it.uppercase() in state.selectedAromaFilters }
             val matchUsage = state.selectedUsage == null ||
                     p.usage.uppercase() == state.selectedUsage!!.uppercase() ||
-                    p.usage.uppercase() == "KEDUANYA"   // produk KEDUANYA cocok untuk filter apapun
+                    p.usage.uppercase() == "KEDUANYA"
             matchQuery && matchAroma && matchUsage
         }
-        _uiState.update { it.copy(results = results) }
-    }
-}
-
-class SearchViewModelFactory : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
-            return SearchViewModel() as T
+        
+        // Simpan riwayat pencarian jika tidak kosong dan hanya ketika mencari
+        if (state.query.isNotBlank()) {
+            viewModelScope.launch {
+                addSearchQueryUseCase(state.query)
+            }
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        
+        _uiState.update { it.copy(results = results) }
     }
 }

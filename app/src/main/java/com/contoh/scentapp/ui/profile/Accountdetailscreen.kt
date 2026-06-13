@@ -41,8 +41,8 @@ import com.contoh.scentapp.ui.theme.*
 @Composable
 fun AccountDetailScreen(
     onBack    : () -> Unit = {},
-    viewModel : ProfileViewModel = viewModel(
-        factory = ProfileViewModelFactory(
+    viewModel: ProfileViewModel = viewModel(
+        factory = com.contoh.scentapp.di.ViewModelFactory.profileFactory(
             LocalContext.current.applicationContext as android.app.Application
         )
     )
@@ -74,7 +74,7 @@ fun AccountDetailScreen(
         if (uiState.email.isNotBlank())    email = uiState.email
     }
 
-    // ✅ FIX: Navigasi balik HANYA setelah upload + Firestore selesai
+    // âœ… FIX: Navigasi balik HANYA setelah upload + Firestore selesai
     val profileUpdateSuccess by viewModel.profileUpdateSuccess.collectAsStateWithLifecycle()
     LaunchedEffect(profileUpdateSuccess) {
         if (profileUpdateSuccess) {
@@ -90,7 +90,7 @@ fun AccountDetailScreen(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? -> uri?.let { photoUri = it } }
 
-    // ✅ FIX: rememberSaveable agar URI tidak hilang saat recomposition
+    // âœ… FIX: rememberSaveable agar URI tidak hilang saat recomposition
     var cameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -114,7 +114,7 @@ fun AccountDetailScreen(
                 modifier       = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 120.dp)
             ) {
-                // ── Top Bar ───────────────────────────────────────────────────
+                // â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 item(key = "topbar") {
                     Row(
                         modifier = Modifier
@@ -143,7 +143,7 @@ fun AccountDetailScreen(
                     }
                 }
 
-                // ── Avatar ────────────────────────────────────────────────────
+                // â”€â”€ Avatar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 item(key = "avatar") {
                     Column(
                         modifier            = Modifier
@@ -168,7 +168,7 @@ fun AccountDetailScreen(
                                         model = ImageRequest.Builder(context)
                                             .data(imageData)
                                             .crossfade(true)
-                                            // ✅ FIX: Nonaktifkan cache agar foto baru selalu tampil
+                                            // âœ… FIX: Nonaktifkan cache agar foto baru selalu tampil
                                             .diskCachePolicy(CachePolicy.DISABLED)
                                             .memoryCachePolicy(CachePolicy.DISABLED)
                                             .build(),
@@ -214,7 +214,7 @@ fun AccountDetailScreen(
                     }
                 }
 
-                // ── Nama ──────────────────────────────────────────────────────
+                // â”€â”€ Nama â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 item(key = "nama") {
                     AccountFormField(
                         label    = "NAMA LENGKAP",
@@ -229,7 +229,7 @@ fun AccountDetailScreen(
                     )
                 }
 
-                // ── Email ─────────────────────────────────────────────────────
+                // â”€â”€ Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 item(key = "email") {
                     AccountFormField(
                         label        = "EMAIL",
@@ -245,7 +245,7 @@ fun AccountDetailScreen(
                     )
                 }
 
-                // ── Password ──────────────────────────────────────────────────
+                // â”€â”€ Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 item(key = "password") {
                     Row(
                         modifier = Modifier
@@ -265,7 +265,7 @@ fun AccountDetailScreen(
                             )
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                text  = "••••••••••••",
+                                text  = "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     color      = MaterialTheme.colorScheme.onBackground,
                                     fontSize   = 18.sp,
@@ -298,7 +298,7 @@ fun AccountDetailScreen(
                     )
                 }
 
-                // ── Alamat ────────────────────────────────────────────────────
+                // â”€â”€ Alamat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 item(key = "alamat") {
                     AddressFormField(
                         value    = address,
@@ -312,7 +312,7 @@ fun AccountDetailScreen(
                     )
                 }
 
-                // ── Security note ─────────────────────────────────────────────
+                // â”€â”€ Security note â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 item(key = "security") {
                     Spacer(Modifier.height(24.dp))
                     Row(
@@ -358,7 +358,7 @@ fun AccountDetailScreen(
                 }
             }
 
-            // ── Tombol Simpan ─────────────────────────────────────────────────
+            // â”€â”€ Tombol Simpan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -372,7 +372,7 @@ fun AccountDetailScreen(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
                         .background(MaterialTheme.colorScheme.onBackground)
-                        // ✅ FIX: onBack() DIHAPUS — navigasi dihandle LaunchedEffect
+                        // âœ… FIX: onBack() DIHAPUS â€” navigasi dihandle LaunchedEffect
                         .clickable {
                             viewModel.updateProfileWithPhoto(
                                 fullName = name,
@@ -397,7 +397,7 @@ fun AccountDetailScreen(
         }
     }
 
-    // ── Dialog Update Password ────────────────────────────────────────────
+    // â”€â”€ Dialog Update Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (showUpdatePasswordDialog) {
         UpdatePasswordDialog(
             updatePasswordState = updatePasswordState,
@@ -411,7 +411,7 @@ fun AccountDetailScreen(
         )
     }
 
-    // ── Dialog Pilih Foto ──────────────────────────────────────────────────
+    // â”€â”€ Dialog Pilih Foto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (showPhotoDialog) {
         AlertDialog(
             onDismissRequest = { showPhotoDialog = false },
@@ -495,7 +495,7 @@ fun AccountDetailScreen(
     }
 }
 
-// ── Dialog Update Password ─────────────────────────────────────────────────────
+// â”€â”€ Dialog Update Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @Composable
 private fun UpdatePasswordDialog(
     updatePasswordState : UpdatePasswordState,

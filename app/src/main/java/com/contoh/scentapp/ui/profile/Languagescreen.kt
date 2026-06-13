@@ -15,13 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.contoh.scentapp.R
-import com.contoh.scentapp.data.model.LanguageOption
+import com.contoh.scentapp.domain.model.LanguageOption
 import com.contoh.scentapp.ui.theme.*
 
 private val languageOptions = listOf(
@@ -31,9 +32,12 @@ private val languageOptions = listOf(
 
 @Composable
 fun LanguageScreen(
-    onBack: () -> Unit = {},
-    viewModel: LanguageViewModel = viewModel()
+    onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: LanguageViewModel = viewModel(
+        factory = com.contoh.scentapp.di.ViewModelFactory.languageFactory(context)
+    )
     val selectedLang by viewModel.selectedLang.collectAsState()
 
     Box(
@@ -43,7 +47,7 @@ fun LanguageScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // ── Header ────────────────────────────────────────────────────────
+            // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -63,7 +67,7 @@ fun LanguageScreen(
                     )
                     Spacer(Modifier.width(16.dp))
                     Text(
-                        text  = stringResource(R.string.language_title), // ✅
+                        text  = stringResource(R.string.language_title), // âœ…
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight    = FontWeight.Bold,
                             fontSize      = 14.sp,
@@ -83,11 +87,11 @@ fun LanguageScreen(
                 )
             }
 
-            // ── Subtitle ──────────────────────────────────────────────────────
+            // â”€â”€ Subtitle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Spacer(Modifier.height(16.dp))
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Text(
-                    text  = stringResource(R.string.interface_preferences), // ✅
+                    text  = stringResource(R.string.interface_preferences), // âœ…
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontSize      = 10.sp,
                         letterSpacing = 2.sp,
@@ -96,7 +100,7 @@ fun LanguageScreen(
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text  = stringResource(R.string.select_language), // ✅
+                    text  = stringResource(R.string.select_language), // âœ…
                     style = MaterialTheme.typography.displayMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize   = 28.sp,
@@ -106,7 +110,7 @@ fun LanguageScreen(
                 )
             }
 
-            // ── Daftar Pilihan Bahasa ─────────────────────────────────────────
+            // â”€â”€ Daftar Pilihan Bahasa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Spacer(Modifier.height(32.dp))
             languageOptions.forEach { lang ->
                 val isSelected = lang.id == selectedLang

@@ -1,7 +1,7 @@
-package com.contoh.scentapp.data.repository
+﻿package com.contoh.scentapp.data.repository
 
 import com.contoh.scentapp.data.FirebaseHelper
-import com.contoh.scentapp.data.model.User
+import com.contoh.scentapp.domain.model.User
 import com.contoh.scentapp.domain.AuthRepository
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -53,7 +53,7 @@ class AuthRepositoryImpl(
         return getUserFromFirestore(uid)
     }
 
-    // ✅ BARU: Update password dengan re-authentication
+    // âœ… BARU: Update password dengan re-authentication
     override suspend fun updatePassword(
         currentPassword: String,
         newPassword: String

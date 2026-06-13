@@ -1,15 +1,14 @@
 package com.contoh.scentapp.ui.detail
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.contoh.scentapp.data.model.CartItem
-import com.contoh.scentapp.data.model.DetailUiState
-import com.contoh.scentapp.data.model.Product
-import com.contoh.scentapp.data.model.SizeOption
-import com.contoh.scentapp.data.repository.CartRepository
-import com.contoh.scentapp.data.repository.ProductRepositoryImpl
-import com.contoh.scentapp.data.repository.ReviewRepository
+import com.contoh.scentapp.domain.model.CartItem
+import com.contoh.scentapp.ui.state.DetailUiState
+import com.contoh.scentapp.domain.model.Product
+import com.contoh.scentapp.domain.model.SizeOption
+import com.contoh.scentapp.domain.usecase.product.GetProductDetailUseCase
+import com.contoh.scentapp.domain.usecase.product.GetProductReviewsUseCase
+import com.contoh.scentapp.domain.usecase.cart.AddToCartUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,17 +17,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DetailViewModel(
-    private val firestoreId     : String,
-    private val repository      : ProductRepositoryImpl = ProductRepositoryImpl(),
-    private val cartRepository  : CartRepository         = CartRepository.getInstance(),
-    private val reviewRepository: ReviewRepository       = ReviewRepository()
+    private val firestoreId: String,
+    private val getProductDetailUseCase: GetProductDetailUseCase,
+    private val getProductReviewsUseCase: GetProductReviewsUseCase,
+    private val addToCartUseCase: AddToCartUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
-    // Harga mentah (Rupiah) per opsi ukuran — dipakai saat "Tambah ke Keranjang"
-    // agar harga di keranjang & subtotal selalu sesuai ukuran yang dipilih.
     private var fullPrice   : Long = 0L
     private var decantPrice : Long = 0L
 
@@ -41,12 +38,11 @@ class DetailViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            repository.getParfumById(firestoreId)
+            getProductDetailUseCase(firestoreId)
                 .onSuccess { parfum ->
                     fullPrice   = parfum.price
                     decantPrice = parfum.decantPrice
 
-                    // Mapping Parfum (Firestore) → Product (UI model)
                     val product = Product(
                         id           = parfum.id.hashCode(),
                         firestoreId  = parfum.id,
@@ -66,7 +62,6 @@ class DetailViewModel(
                         reviewCount  = parfum.reviewCount
                     )
 
-                    // Size options: tampilkan Full Size, tambah Decant jika tersedia
                     val sizeOptions = mutableListOf(
                         SizeOption(
                             id    = "full",
@@ -107,14 +102,10 @@ class DetailViewModel(
         }
     }
 
-    /**
-     * Ambil ulasan secara realtime dari Firestore (parfums/{id}/reviews),
-     * sehingga ulasan yang baru ditulis langsung muncul di halaman detail.
-     */
     private fun loadReviews() {
         viewModelScope.launch {
-            reviewRepository.getReviews(firestoreId)
-                .catch { /* abaikan error stream ulasan, tidak menghalangi detail produk */ }
+            getProductReviewsUseCase(firestoreId)
+                .catch { /* abaikan error */ }
                 .collect { reviews ->
                     _uiState.update { it.copy(reviews = reviews) }
                 }
@@ -131,8 +122,6 @@ class DetailViewModel(
         val sizeId  = state.selectedSizeId
         val sizeOption = state.sizeOptions.find { it.id == sizeId }
 
-        // Harga per item HARUS mengikuti ukuran yang dipilih (Full / Decant),
-        // bukan selalu harga ukuran penuh — ini sumber subtotal yang tidak sesuai.
         val pricePerItem = when (sizeId) {
             "decant" -> decantPrice
             else     -> fullPrice
@@ -141,11 +130,9 @@ class DetailViewModel(
         val volumeLabel = sizeOption?.size?.lowercase() ?: product.volume
         val isDecant     = sizeId == "decant"
 
-        // productId berbeda per varian ukuran agar Full & Decant dari produk
-        // yang sama tidak tergabung jadi satu baris keranjang dengan harga keliru.
         val cartProductId = "${product.firestoreId}_$sizeId".hashCode()
 
-        cartRepository.addToCart(
+        addToCartUseCase(
             CartItem(
                 productId    = cartProductId,
                 firestoreId  = product.firestoreId,
@@ -161,15 +148,5 @@ class DetailViewModel(
                 accentColor  = product.accentColor
             )
         )
-    }
-
-    class DetailViewModelFactory(private val firestoreId: String) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(DetailViewModel::class.java)) {
-                return DetailViewModel(firestoreId) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
     }
 }
