@@ -25,25 +25,109 @@ import androidx.compose.ui.unit.sp
 import com.contoh.scentapp.data.model.OrderStatus
 import com.contoh.scentapp.ui.theme.*
 
-private data class DemoOrder(
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.contoh.scentapp.data.model.Order
+import com.contoh.scentapp.data.repository.OrderRepositoryImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+/** Tampilan ringkas satu pesanan, dipetakan dari dokumen [Order] di Firestore. */
+private data class OrderHistoryDisplay(
     val id            : String,
     val productName   : String,
     val volume        : String,
     val totalStr      : String,
     val date          : String,
     val status        : OrderStatus,
-    val paymentMethod : String = "Transfer"
+    val paymentMethod : String
 )
+
+private fun Order.toDisplay(): OrderHistoryDisplay {
+    val firstItem  = items.firstOrNull()
+    val productName = when {
+        firstItem == null      -> "Pesanan"
+        items.size > 1          -> "${firstItem.name} & ${items.size - 1} lainnya"
+        else                     -> firstItem.name
+    }
+    val volume = firstItem?.volume ?: ""
+    val total  = totalPrice + shippingCost
+    val totalStr = "Rp${"%,d".format(total).replace(',', '.')}"
+    val date = if (createdAt > 0L) {
+        SimpleDateFormat("dd MMM yyyy", Locale("id", "ID")).format(Date(createdAt))
+    } else ""
+    val paymentMethod = if (this.paymentMethod.equals("transfer", ignoreCase = true)) "Transfer" else "COD"
+
+    return OrderHistoryDisplay(
+        id            = id,
+        productName   = productName,
+        volume        = volume,
+        totalStr      = totalStr,
+        date          = date,
+        status        = status,
+        paymentMethod = paymentMethod
+    )
+}
+
+class OrderHistoryViewModel(
+    private val repository: OrderRepositoryImpl = OrderRepositoryImpl()
+) : ViewModel() {
+
+    private val _orders = MutableStateFlow<List<Order>>(emptyList())
+    val orders: StateFlow<List<Order>> = _orders.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    init {
+        val buyerId = repository.currentUserId
+        if (buyerId == null) {
+            _isLoading.value = false
+        } else {
+            viewModelScope.launch {
+                repository.getBuyerOrders(buyerId)
+                    .catch { _isLoading.value = false }
+                    .collect { list ->
+                        _orders.update { list }
+                        _isLoading.value = false
+                    }
+            }
+        }
+    }
+}
+
+class OrderHistoryViewModelFactory : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(OrderHistoryViewModel::class.java)) {
+            return OrderHistoryViewModel() as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 
 @Composable
 fun OrderHistoryScreen(
     onBack             : () -> Unit,
-    onOrderDetailClick : (String) -> Unit
+    onOrderDetailClick : (String) -> Unit,
+    viewModel          : OrderHistoryViewModel = viewModel(factory = OrderHistoryViewModelFactory())
 ) {
     val tabs = listOf("Semua", "Belum Bayar", "Diproses", "Dikirim", "Selesai", "Batal")
     var selectedTab by remember { mutableStateOf("Semua") }
 
-    val allOrders = emptyList<DemoOrder>()
+    val orders     by viewModel.orders.collectAsStateWithLifecycle()
+    val isLoading  by viewModel.isLoading.collectAsStateWithLifecycle()
+    val allOrders  = orders.map { it.toDisplay() }
 
     val filteredOrders = when (selectedTab) {
         "Belum Bayar" -> allOrders.filter { it.status == OrderStatus.WAITING_PAYMENT || it.status == OrderStatus.MENUNGGU_KONFIRMASI }
@@ -109,7 +193,11 @@ fun OrderHistoryScreen(
             }
 
             // ── Order List ────────────────────────────────────────────────────
-            if (filteredOrders.isEmpty()) {
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = ScentGold)
+                }
+            } else if (filteredOrders.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(Icons.Default.ShoppingBag, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f), modifier = Modifier.size(48.dp))
@@ -135,7 +223,7 @@ fun OrderHistoryScreen(
 }
 
 @Composable
-private fun OrderHistoryCard(order: DemoOrder, onClick: () -> Unit) {
+private fun OrderHistoryCard(order: OrderHistoryDisplay, onClick: () -> Unit) {
     val (statusColor, statusBg) = statusStyle(order.status)
     val statusIcon = statusIcon(order.status)
 

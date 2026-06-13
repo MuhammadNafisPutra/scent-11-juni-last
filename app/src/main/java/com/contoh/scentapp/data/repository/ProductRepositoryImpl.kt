@@ -77,9 +77,14 @@ class ProductRepositoryImpl(
             close()
             return@callbackFlow
         }
+        // Catatan: TIDAK menggunakan .orderBy("createdAt") di sini.
+        // whereEqualTo("sellerId", ...) + orderBy("createdAt") membutuhkan
+        // composite index di Firestore. Jika index belum dibuat, listener
+        // akan langsung error (FAILED_PRECONDITION) dan berhenti permanen,
+        // sehingga produk baru tidak akan pernah muncul tanpa restart app.
+        // Sebagai gantinya, urutkan hasilnya di klien.
         val listener = firestore.collection(COLLECTION)
             .whereEqualTo("sellerId", sellerId)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)
@@ -87,6 +92,7 @@ class ProductRepositoryImpl(
                 }
                 val list = snapshot?.documents
                     ?.mapNotNull { it.toObject(Parfum::class.java) }
+                    ?.sortedByDescending { it.createdAt }
                     ?: emptyList()
                 trySend(list)
             }

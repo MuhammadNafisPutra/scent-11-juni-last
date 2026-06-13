@@ -3,6 +3,7 @@ package com.contoh.scentapp.data.model
 data class Product(
     val id           : Int,
     val firestoreId  : String       = "",   // ID dokumen Firestore
+    val sellerId     : String       = "",   // UID penjual pemilik produk
     val brand        : String,
     val name         : String,
     val price        : String,

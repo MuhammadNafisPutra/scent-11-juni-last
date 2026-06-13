@@ -50,6 +50,7 @@ class DetailViewModel(
                     val product = Product(
                         id           = parfum.id.hashCode(),
                         firestoreId  = parfum.id,
+                        sellerId     = parfum.sellerId,
                         brand        = parfum.brand,
                         name         = parfum.name,
                         price        = "Rp${"%,d".format(parfum.price).replace(',', '.')}",
@@ -147,6 +148,8 @@ class DetailViewModel(
         cartRepository.addToCart(
             CartItem(
                 productId    = cartProductId,
+                firestoreId  = product.firestoreId,
+                sellerId     = product.sellerId,
                 name         = product.name,
                 brand        = product.brand,
                 aromaProfile = product.aromaProfile.joinToString(", "),

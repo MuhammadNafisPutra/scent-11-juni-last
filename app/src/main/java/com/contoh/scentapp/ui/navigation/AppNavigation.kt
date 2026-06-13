@@ -15,7 +15,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import com.contoh.scentapp.data.model.Routes
+import com.contoh.scentapp.data.model.Order
+import com.contoh.scentapp.data.model.OrderStatus
+import com.contoh.scentapp.data.repository.CartRepository
+import com.contoh.scentapp.data.repository.OrderRepositoryImpl
 import com.contoh.scentapp.data.repository.SessionManager
 import com.contoh.scentapp.ui.auth.LoginScreen
 import com.contoh.scentapp.ui.auth.RegisterScreen
@@ -73,6 +80,58 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
         }
     ) { innerPadding ->
         val salesViewModel: SalesViewModel = viewModel(factory = SalesViewModelFactory())
+        val coroutineScope  = rememberCoroutineScope()
+        val cartRepository  = CartRepository.getInstance()
+        val orderRepository = OrderRepositoryImpl()
+
+        // ── Buat dokumen pesanan dari isi keranjang saat checkout ──────────────
+        // Dipanggil baik dari jalur COD (ShippingScreen) maupun Transfer
+        // (UploadPaymentProofScreen), agar pesanan langsung tercatat di
+        // Firestore dan muncul di Riwayat Pesanan (buyer) & Pesanan Masuk (seller).
+        fun createOrdersFromCart(isTransfer: Boolean, onDone: () -> Unit) {
+            coroutineScope.launch {
+                val items   = cartRepository.cartItems.first()
+                val summary = cartRepository.checkoutSummary.first()
+
+                if (items.isEmpty()) {
+                    onDone()
+                    return@launch
+                }
+
+                val initialStatus = if (isTransfer) {
+                    OrderStatus.MENUNGGU_KONFIRMASI
+                } else {
+                    OrderStatus.WAITING_PAYMENT
+                }
+                val paymentMethodLabel = if (isTransfer) "Transfer" else "COD"
+
+                // Pisahkan item per penjual (sellerId) — satu order Firestore
+                // hanya boleh memiliki satu sellerId agar muncul benar di
+                // halaman "Pesanan Masuk" milik penjual tersebut.
+                val itemsBySeller = items.groupBy { it.sellerId }
+
+                itemsBySeller.entries.forEachIndexed { index, (sellerId, sellerItems) ->
+                    val subtotal = sellerItems.sumOf { it.totalPrice }
+                    // Biaya kirim dibebankan pada order pertama saja agar
+                    // total yang ditampilkan saat checkout tetap sesuai.
+                    val shippingForThisOrder = if (index == 0) summary.shippingFee else 0
+
+                    orderRepository.createOrder(
+                        Order(
+                            sellerId      = sellerId,
+                            items         = sellerItems,
+                            totalPrice    = subtotal.toLong(),
+                            shippingCost  = shippingForThisOrder.toLong(),
+                            paymentMethod = paymentMethodLabel,
+                            status        = initialStatus
+                        )
+                    )
+                }
+
+                cartRepository.clearCart()
+                onDone()
+            }
+        }
 
         NavHost(
             navController    = navController,
@@ -184,7 +243,11 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
                         if (isTransfer) {
                             navController.navigate(Routes.UPLOAD_BUKTI)
                         } else {
-                            navController.navigate(Routes.orderSuccessRoute(false))
+                            createOrdersFromCart(isTransfer = false) {
+                                navController.navigate(Routes.orderSuccessRoute(false)) {
+                                    popUpTo(Routes.CART) { inclusive = true }
+                                }
+                            }
                         }
                     }
                 )
@@ -193,8 +256,10 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
                 UploadPaymentProofScreen(
                     onBack   = { navController.popBackStack() },
                     onSubmit = {
-                        navController.navigate(Routes.orderSuccessRoute(true)) {
-                            popUpTo(Routes.CART) { inclusive = true }
+                        createOrdersFromCart(isTransfer = true) {
+                            navController.navigate(Routes.orderSuccessRoute(true)) {
+                                popUpTo(Routes.CART) { inclusive = true }
+                            }
                         }
                     }
                 )
