@@ -55,6 +55,14 @@ class ShippingAddressViewModel(
     }
 
     fun saveDestinationCity(cityId: String) {
-        shippingRepository.selectedDestinationCityId = cityId
+        shippingRepository.selectedDestinationCityId = "city_$cityId"
+    }
+
+    fun saveFullAddress(fullAddress: String) {
+        viewModelScope.launch {
+            val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
+            com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid)
+                .update("defaultAddress", fullAddress)
+        }
     }
 }

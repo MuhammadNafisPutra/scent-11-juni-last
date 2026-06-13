@@ -47,7 +47,7 @@ fun LanguageScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Header ────────────────────────────────────────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,7 +67,7 @@ fun LanguageScreen(
                     )
                     Spacer(Modifier.width(16.dp))
                     Text(
-                        text  = stringResource(R.string.language_title), // âœ…
+                        text  = stringResource(R.string.language_title), // ✅
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight    = FontWeight.Bold,
                             fontSize      = 14.sp,
@@ -87,11 +87,11 @@ fun LanguageScreen(
                 )
             }
 
-            // â”€â”€ Subtitle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Subtitle ──────────────────────────────────────────────────────
             Spacer(Modifier.height(16.dp))
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Text(
-                    text  = stringResource(R.string.interface_preferences), // âœ…
+                    text  = stringResource(R.string.interface_preferences), // ✅
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontSize      = 10.sp,
                         letterSpacing = 2.sp,
@@ -100,7 +100,7 @@ fun LanguageScreen(
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text  = stringResource(R.string.select_language), // âœ…
+                    text  = stringResource(R.string.select_language), // ✅
                     style = MaterialTheme.typography.displayMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize   = 28.sp,
@@ -110,7 +110,7 @@ fun LanguageScreen(
                 )
             }
 
-            // â”€â”€ Daftar Pilihan Bahasa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Daftar Pilihan Bahasa ─────────────────────────────────────────
             Spacer(Modifier.height(32.dp))
             languageOptions.forEach { lang ->
                 val isSelected = lang.id == selectedLang

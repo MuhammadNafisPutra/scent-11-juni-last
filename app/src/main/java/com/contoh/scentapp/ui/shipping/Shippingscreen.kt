@@ -128,6 +128,15 @@ fun ShippingScreen(
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.onBackground)
                     }
                 }
+            } else if (shippingOptions.isEmpty()) {
+                item(key = "empty_options") {
+                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        Text(
+                            "Silakan pilih alamat pengiriman terlebih dahulu", 
+                            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f))
+                        )
+                    }
+                }
             } else {
                 items(
                     count = shippingOptions.size,

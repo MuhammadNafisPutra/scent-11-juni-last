@@ -260,7 +260,7 @@ private fun CartItemCard(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text  = "${item.aromaProfile} â€¢ ${item.volume}",
+                        text  = "${item.aromaProfile} • ${item.volume}",
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), lineHeight = 18.sp
                         )
@@ -286,7 +286,7 @@ private fun CartItemCard(
                         modifier         = Modifier.size(40.dp).clickable(onClick = onDecrease),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("âˆ’", style = MaterialTheme.typography.titleMedium.copy(color = onBg))
+                        Text("-", style = MaterialTheme.typography.titleMedium.copy(color = onBg))
                     }
                     Text(
                         text     = item.quantity.toString(),

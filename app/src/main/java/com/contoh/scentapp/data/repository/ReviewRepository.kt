@@ -17,7 +17,7 @@ import kotlinx.coroutines.tasks.await
  *
  * Setiap kali ulasan baru ditambahkan, statistik agregat pada dokumen
  * parfums/{parfumId} (reviewCount, avgLongevity, avgSillage, avgProjection)
- * juga ikut diperbarui â€” sehingga rating yang tampil di Home/Detail
+ * juga ikut diperbarui — sehingga rating yang tampil di Home/Detail
  * selalu sinkron dengan ulasan yang benar-benar ditulis.
  */
 class ReviewRepository(

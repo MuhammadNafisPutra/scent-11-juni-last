@@ -20,7 +20,7 @@ class ProductRepositoryImpl(
         private const val COLLECTION = "parfums"
     }
 
-    // â”€â”€ Upload gambar ke Cloudinary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Upload gambar ke Cloudinary ──────────────────────────────────────────
 
     /**
      * Upload gambar produk ke Cloudinary.
@@ -30,7 +30,7 @@ class ProductRepositoryImpl(
         return CloudinaryUploader.upload(context, imageUri)
     }
 
-    // â”€â”€ Tambah produk baru ke Firestore â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Tambah produk baru ke Firestore ──────────────────────────────────────
 
     suspend fun addParfum(parfum: Parfum): Result<Unit> {
         return try {
@@ -50,7 +50,7 @@ class ProductRepositoryImpl(
         }
     }
 
-    // â”€â”€ Ambil semua produk (realtime) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Ambil semua produk (realtime) ────────────────────────────────────────
 
     fun getAllParfums(): Flow<List<Parfum>> = callbackFlow {
         val listener = firestore.collection(COLLECTION)
@@ -68,7 +68,7 @@ class ProductRepositoryImpl(
         awaitClose { listener.remove() }
     }
 
-    // â”€â”€ Ambil produk milik seller yang sedang login (realtime) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Ambil produk milik seller yang sedang login (realtime) ───────────────
 
     fun getMyParfums(): Flow<List<Parfum>> = callbackFlow {
         val sellerId = auth.currentUser?.uid
@@ -99,7 +99,7 @@ class ProductRepositoryImpl(
         awaitClose { listener.remove() }
     }
 
-    // â”€â”€ Update produk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Update produk ────────────────────────────────────────────────────────
 
     suspend fun updateParfum(parfum: Parfum): Result<Unit> {
         return try {
@@ -113,7 +113,7 @@ class ProductRepositoryImpl(
         }
     }
 
-    // â”€â”€ Hapus produk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Hapus produk ─────────────────────────────────────────────────────────
 
     suspend fun deleteParfum(parfumId: String): Result<Unit> {
         return try {
@@ -127,7 +127,7 @@ class ProductRepositoryImpl(
         }
     }
 
-    // â”€â”€ Ambil satu produk by ID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Ambil satu produk by ID ──────────────────────────────────────────────
 
     suspend fun getParfumById(parfumId: String): Result<Parfum> {
         return try {

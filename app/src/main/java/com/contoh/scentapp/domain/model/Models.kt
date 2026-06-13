@@ -10,6 +10,6 @@ data class User(
     val profileImageUrl: String = "",
     val defaultAddress: String = "",
     val scentProfile: List<String> = emptyList(),
-    @ServerTimestamp  // âœ… ADD THIS
-    val createdAt: Date? = null  // âœ… ADD THIS
+    @ServerTimestamp  // ✅ ADD THIS
+    val createdAt: Date? = null  // ✅ ADD THIS
 )

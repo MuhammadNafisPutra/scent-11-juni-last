@@ -44,7 +44,7 @@ fun LoginScreen(
     LaunchedEffect(email)    { viewModel.onLoginEmailChange(email) }
     LaunchedEffect(password) { viewModel.onLoginPasswordChange(password) }
 
-    // â”€â”€ Adaptive color tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Adaptive color tokens ──────────────────────────────────────────────
     val bg       = MaterialTheme.colorScheme.background
     val onBg     = MaterialTheme.colorScheme.onBackground
     val muted    = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
@@ -171,7 +171,7 @@ fun LoginScreen(
                     decorationBox        = { inner ->
                         if (password.isEmpty()) {
                             Text(
-                                text  = "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
+                                text  = "••••••••",
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     color = muted, fontSize = 16.sp
                                 )

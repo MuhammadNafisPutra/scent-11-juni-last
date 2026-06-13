@@ -130,7 +130,9 @@ object ViewModelFactory {
             val productRepo = com.contoh.scentapp.data.repository.ProductRepositoryImpl()
             val getSellerProductsUseCase = com.contoh.scentapp.domain.usecase.product.GetSellerProductsUseCase(productRepo)
             val deleteProductUseCase = com.contoh.scentapp.domain.usecase.product.DeleteProductUseCase(productRepo)
-            return SalesViewModel(getSellerProductsUseCase, deleteProductUseCase) as T
+            val orderRepo = com.contoh.scentapp.data.repository.OrderRepositoryImpl()
+            val authRepo = com.contoh.scentapp.data.repository.AuthRepositoryImpl.getInstance()
+            return SalesViewModel(getSellerProductsUseCase, deleteProductUseCase, orderRepo, authRepo) as T
         }
     }
 

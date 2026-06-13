@@ -115,7 +115,7 @@ fun ProfileScreen(
                         .padding(horizontal = 20.dp, vertical = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // âœ… FIX: Tampilkan foto profil jika ada, fallback ke icon Person
+                    // ✅ FIX: Tampilkan foto profil jika ada, fallback ke icon Person
                     Box(
                         modifier = Modifier
                             .size(90.dp)

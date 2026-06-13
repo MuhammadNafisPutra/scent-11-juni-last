@@ -4,9 +4,9 @@ import com.google.gson.annotations.SerializedName
 
 data class BinderByteBaseResponse<T>(
     @SerializedName("code")
-    val code: Int,
-    @SerializedName("message")
-    val message: String,
+    val code: String,
+    @SerializedName("messages")
+    val messages: String,
     @SerializedName("value")
     val value: T?
 )
@@ -27,17 +27,6 @@ data class CityDto(
     val name: String
 )
 
-data class ShippingCostRequest(
-    @SerializedName("origin")
-    val origin: String,
-    @SerializedName("destination")
-    val destination: String,
-    @SerializedName("weight")
-    val weight: Int,
-    @SerializedName("courier")
-    val courier: String
-)
-
 data class ShippingCostDto(
     @SerializedName("code")
     val code: String,
@@ -50,17 +39,37 @@ data class ShippingCostDto(
 data class ShippingCostDetailDto(
     @SerializedName("service")
     val service: String,
-    @SerializedName("description")
-    val description: String,
-    @SerializedName("cost")
-    val cost: List<ShippingCostPriceDto>
+    @SerializedName("type")
+    val type: String,
+    @SerializedName("price")
+    val price: String,
+    @SerializedName("estimated")
+    val estimated: String
 )
 
-data class ShippingCostPriceDto(
-    @SerializedName("value")
-    val value: Int,
-    @SerializedName("etd")
-    val etd: String,
-    @SerializedName("note")
-    val note: String
+data class ShippingCostResponseDto(
+    @SerializedName("code")
+    val code: String,
+    @SerializedName("message")
+    val message: String,
+    @SerializedName("data")
+    val data: ShippingCostDataDto?
+)
+
+data class ShippingCostDataDto(
+    @SerializedName("origin")
+    val origin: LocationInfoDto,
+    @SerializedName("destination")
+    val destination: LocationInfoDto,
+    @SerializedName("weight")
+    val weight: String,
+    @SerializedName("results")
+    val results: List<ShippingCostDto>
+)
+
+data class LocationInfoDto(
+    @SerializedName("id")
+    val id: String,
+    @SerializedName("label")
+    val label: String
 )

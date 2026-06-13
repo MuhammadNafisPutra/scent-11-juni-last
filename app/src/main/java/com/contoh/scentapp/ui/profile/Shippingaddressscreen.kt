@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -53,11 +54,19 @@ fun ShippingAddressScreen(
     val listState       = rememberLazyListState()
     val labelOptions = listOf("RUMAH", "KANTOR", "LAINNYA")
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
         LazyColumn(
             state          = listState,
             modifier       = Modifier.fillMaxSize(),
@@ -374,8 +383,16 @@ fun ShippingAddressScreen(
                     .clip(RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colorScheme.onBackground)
                     .clickable { 
-                        selectedCity?.let { viewModel.saveDestinationCity(it.id) }
-                        onBack() 
+                        if (namaPenerima.isBlank() || noTelepon.isBlank() || selectedCity == null || selectedProvince == null || alamatLengkap.isBlank()) {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Harap lengkapi semua data alamat")
+                            }
+                        } else {
+                            val fullAddress = "$namaPenerima - $noTelepon\n$alamatLengkap, ${selectedCity?.name}, ${selectedProvince?.name}"
+                            viewModel.saveDestinationCity(selectedCity!!.id)
+                            viewModel.saveFullAddress(fullAddress)
+                            onBack() 
+                        }
                     }
                     .padding(vertical = 18.dp),
                 contentAlignment = Alignment.Center
@@ -392,6 +409,7 @@ fun ShippingAddressScreen(
             }
         }
     }
+}
 }
 
 @Composable

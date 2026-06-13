@@ -1,4 +1,4 @@
-﻿package com.contoh.scentapp.ui.state
+package com.contoh.scentapp.ui.state
 
 import com.contoh.scentapp.domain.model.*
 
@@ -8,16 +8,27 @@ data class SalesUiState(
     val activeOrders   : List<ActiveOrder>  = emptyList(),
     val errorMessage   : String?            = null
 ) {
-    // Total pendapatan dari semua produk Ã— stok terjual (estimasi sederhana)
+    private fun isCounted(order: ActiveOrder): Boolean {
+        return if (order.paymentMethod.equals("COD", ignoreCase = true) || order.paymentMethod.contains("Cash on Delivery", ignoreCase = true)) {
+            order.status == OrderStatus.SELESAI || order.status == OrderStatus.DELIVERED
+        } else {
+            order.status in listOf(
+                OrderStatus.PEMBAYARAN_DIKONFIRMASI, OrderStatus.SIAP_DIKIRIM, 
+                OrderStatus.DIKIRIM, OrderStatus.SELESAI, OrderStatus.DELIVERED,
+                OrderStatus.DALAM_PROSES, OrderStatus.DIKEMAS, OrderStatus.PAID
+            )
+        }
+    }
+
     val totalPendapatan: Long
-        get() = products.sumOf { it.price.toLong() * (it.stock.coerceAtLeast(1)) }
+        get() = activeOrders.filter { isCounted(it) }.sumOf { it.totalPrice }
 
     val formattedPendapatan: String
         get() = "Rp${"%,d".format(totalPendapatan).replace(',', '.')}"
 
     val totalPenjualan: Int
-        get() = products.sumOf { it.stock }
+        get() = activeOrders.filter { isCounted(it) }.size
 
     val growthPercent: String
-        get() = "+12.4% dari bulan lalu"
+        get() = ""
 }

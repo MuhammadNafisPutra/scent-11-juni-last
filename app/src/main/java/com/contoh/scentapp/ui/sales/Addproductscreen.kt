@@ -47,8 +47,8 @@ private val bankOptions   = listOf("BCA", "BNI", "BRI", "Mandiri", "BSI", "Perma
 private val walletOptions = listOf("GoPay", "OVO", "DANA", "ShopeePay", "LinkAja", "Lainnya")
 
 /**
- * [firestoreId] = null  â†’ mode TAMBAH PRODUK BARU
- * [firestoreId] = "xyz" â†’ mode EDIT, form akan di-prefill dengan data produk
+ * [firestoreId] = null  → mode TAMBAH PRODUK BARU
+ * [firestoreId] = "xyz" → mode EDIT, form akan di-prefill dengan data produk
  */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +66,7 @@ fun AddProductScreen(
 
     val isEditMode = firestoreId != null
 
-    // â”€â”€ Form state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Form state ─────────────────────────────────────────────────────────
     var namaParfum       by rememberSaveable { mutableStateOf("") }
     var brandParfum      by rememberSaveable { mutableStateOf("") }
     var deskripsi        by rememberSaveable { mutableStateOf("") }
@@ -95,7 +95,7 @@ fun AddProductScreen(
     // Tandai apakah form sudah di-prefill dari data existing
     var prefilled by rememberSaveable { mutableStateOf(false) }
 
-    // â”€â”€ Prefill form saat mode Edit dan data sudah di-load â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Prefill form saat mode Edit dan data sudah di-load ─────────────────
     LaunchedEffect(existingParfum) {
         val p = existingParfum
         if (isEditMode && p != null && !prefilled) {
@@ -104,7 +104,7 @@ fun AddProductScreen(
             deskripsi     = p.description
             hargaPenuh    = p.price.toString()
             hargaDecant   = if (p.decantPrice > 0) p.decantPrice.toString() else ""
-            isDecantAvail = p.isDecantAvailable
+            isDecantAvail = p.decantAvailable
             selectedAroma = p.olfactoryFamily.ifBlank { "Woody" }
             jumlahStok    = p.stock.toString()
             selectedSize  = (p.sizes.firstOrNull() ?: 50).toString()
@@ -246,7 +246,7 @@ fun AddProductScreen(
                 .padding(bottom = 120.dp)
         ) {
 
-            // â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Top Bar ───────────────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalAlignment     = Alignment.CenterVertically,
@@ -261,7 +261,7 @@ fun AddProductScreen(
                 Spacer(Modifier.size(22.dp))
             }
 
-            // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Header ────────────────────────────────────────────────────────
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("MANAJEMEN INVENTARIS", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 2.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(6.dp))
@@ -272,7 +272,7 @@ fun AddProductScreen(
                 )
             }
 
-            // â”€â”€ Upload Foto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Upload Foto ───────────────────────────────────────────────────
             Box(
                 modifier = Modifier
                     .padding(horizontal = 20.dp, vertical = 12.dp)
@@ -310,11 +310,11 @@ fun AddProductScreen(
                 }
             }
 
-            // â”€â”€ Nama & Brand â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            ProductFormField(label = "NAMA PARFUM", value = namaParfum, onChange = { namaParfum = it }, placeholder = "contoh: Noir Ã‰phÃ©mÃ¨re", modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
+            // ── Nama & Brand ──────────────────────────────────────────────────
+            ProductFormField(label = "NAMA PARFUM", value = namaParfum, onChange = { namaParfum = it }, placeholder = "contoh: Noir Éphémère", modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
             ProductFormField(label = "BRAND", value = brandParfum, onChange = { brandParfum = it }, placeholder = "contoh: Atelier V", modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
 
-            // â”€â”€ Deskripsi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Deskripsi ─────────────────────────────────────────────────────
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("DESKRIPSI PARFUM", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(10.dp))
@@ -336,7 +336,7 @@ fun AddProductScreen(
                 }
             }
 
-            // â”€â”€ Harga Penuh â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Harga Penuh ───────────────────────────────────────────────────
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("HARGA PENUH (RP)", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(10.dp))
@@ -363,7 +363,7 @@ fun AddProductScreen(
                 }
             }
 
-            // â”€â”€ Decant Toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Decant Toggle ─────────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
                 verticalAlignment     = Alignment.CenterVertically,
@@ -413,7 +413,7 @@ fun AddProductScreen(
                 }
             }
 
-            // â”€â”€ Aroma Family â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Aroma Family ──────────────────────────────────────────────────
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("WANGI (OLFACTORY FAMILY)", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(10.dp))
@@ -433,7 +433,7 @@ fun AddProductScreen(
                 }
             }
 
-            // â”€â”€ Notes Aroma â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Notes Aroma ───────────────────────────────────────────────────
             Column(
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp).fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
@@ -477,7 +477,7 @@ fun AddProductScreen(
                 }
             }
 
-            // â”€â”€ Stok & Ukuran â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Stok & Ukuran ─────────────────────────────────────────────────
             ProductFormField(label = "JUMLAH STOK", value = jumlahStok, onChange = { jumlahStok = it }, placeholder = "48", keyboardType = KeyboardType.Number, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
 
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
@@ -500,7 +500,7 @@ fun AddProductScreen(
             }
 
 
-            // â”€â”€ Waktu Penggunaan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Waktu Penggunaan ──────────────────────────────────────────────
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Text("WAKTU PENGGUNAAN", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(4.dp))
@@ -543,7 +543,7 @@ fun AddProductScreen(
             Spacer(Modifier.height(8.dp))
         }
 
-        // â”€â”€ Tombol Simpan / Loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Tombol Simpan / Loading ────────────────────────────────────────────
         Box(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
@@ -576,13 +576,13 @@ fun AddProductScreen(
                             name             = namaParfum,
                             brand            = brandParfum,
                             price            = hargaPenuh.replace(".", "").replace(",", "").toLongOrNull() ?: 0L,
-                            decantPrice      = hargaDecant.replace(".", "").replace(",", "").toLongOrNull() ?: 0L,
+                            decantPrice      = hargaDecant.replace(".", "").replace(",", "").toLongOrNull() ?: 25000L,
                             stock            = jumlahStok.toIntOrNull() ?: 0,
                             description      = deskripsi,
                             olfactoryFamily  = selectedAroma,
                             topNotes         = aromaChips.toList(),
                             sizes            = listOf(selectedSize.toIntOrNull() ?: 50),
-                            isDecantAvailable = isDecantAvail,
+                            decantAvailable = isDecantAvail,
                             usage            = selectedUsage,
                             createdAt        = existingParfum?.createdAt ?: 0L
                         )

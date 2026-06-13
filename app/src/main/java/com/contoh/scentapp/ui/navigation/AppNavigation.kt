@@ -83,7 +83,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
         val cartRepository  = CartRepository.getInstance()
         val orderRepository = OrderRepositoryImpl()
 
-        // â”€â”€ Buat dokumen pesanan dari isi keranjang saat checkout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Buat dokumen pesanan dari isi keranjang saat checkout ──────────────
         // Dipanggil baik dari jalur COD (ShippingScreen) maupun Transfer
         // (UploadPaymentProofScreen), agar pesanan langsung tercatat di
         // Firestore dan muncul di Riwayat Pesanan (buyer) & Pesanan Masuk (seller).
@@ -104,7 +104,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
                 }
                 val paymentMethodLabel = if (isTransfer) "Transfer" else "COD"
 
-                // Pisahkan item per penjual (sellerId) â€” satu order Firestore
+                // Pisahkan item per penjual (sellerId) — satu order Firestore
                 // hanya boleh memiliki satu sellerId agar muncul benar di
                 // halaman "Pesanan Masuk" milik penjual tersebut.
                 val itemsBySeller = items.groupBy { it.sellerId }
@@ -161,7 +161,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
             }
             composable(Routes.HOME) {
                 HomeScreen(
-                    // â† passing firestoreId (String) bukan productId (Int)
+                    // ← passing firestoreId (String) bukan productId (Int)
                     onProductClick = { firestoreId ->
                         navController.navigate(Routes.detailRoute(firestoreId))
                     },
@@ -173,7 +173,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
             composable(Routes.FAVORITE) {
                 FavoriteScreen(
                     onBack         = { navController.popBackStack() },
-                    // â† passing firestoreId (String)
+                    // ← passing firestoreId (String)
                     onProductClick = { firestoreId ->
                         navController.navigate(Routes.detailRoute(firestoreId))
                     }
@@ -204,7 +204,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
             }
             composable(
                 route     = Routes.DETAIL,
-                // â† ganti IntType â†’ StringType, ganti key "productId" â†’ "firestoreId"
+                // ← ganti IntType → StringType, ganti key "productId" → "firestoreId"
                 arguments = listOf(navArgument("firestoreId") { type = NavType.StringType })
             ) { backStack ->
                 val firestoreId = backStack.arguments?.getString("firestoreId")
@@ -229,7 +229,7 @@ fun AppNavigation(startLoggedIn: Boolean = false) {
                 SearchScreen(
                     initialQuery   = backStack.arguments?.getString("query") ?: "",
                     onBack         = { navController.popBackStack() },
-                    // â† passing firestoreId (String)
+                    // ← passing firestoreId (String)
                     onProductClick = { firestoreId ->
                         navController.navigate(Routes.detailRoute(firestoreId))
                     }

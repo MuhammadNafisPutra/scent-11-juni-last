@@ -14,7 +14,7 @@ class UpdateProfileUseCase(
     private val authRepository: AuthRepository,
     private val firestore: FirebaseFirestore
 ) {
-    suspend operator fun invoke(fullName: String, email: String, photoUri: Uri?): Result<String?> {
+    suspend operator fun invoke(fullName: String, email: String, photoUri: Uri?, address: String? = null): Result<String?> {
         return try {
             val uid = authRepository.currentUserId ?: return Result.failure(Exception("User not found"))
 
@@ -29,6 +29,7 @@ class UpdateProfileUseCase(
                 "email"    to email
             )
             if (imageUrl != null) updates["profileImageUrl"] = imageUrl
+            if (address != null) updates["defaultAddress"] = address
 
             firestore.collection("users").document(uid)
                 .update(updates)

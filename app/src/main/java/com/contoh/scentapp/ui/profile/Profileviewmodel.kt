@@ -54,7 +54,8 @@ class ProfileViewModel(
                         it.copy(
                             fullName        = user.fullName,
                             email           = user.email,
-                            profileImageUrl = user.profileImageUrl
+                            profileImageUrl = user.profileImageUrl,
+                            address         = user.defaultAddress
                         )
                     }
                 }
@@ -62,15 +63,16 @@ class ProfileViewModel(
         }
     }
 
-    fun updateProfileWithPhoto(fullName: String, email: String, photoUri: Uri?) {
+    fun updateProfileWithPhoto(fullName: String, email: String, address: String, photoUri: Uri?) {
         viewModelScope.launch {
-            val result = updateProfileUseCase(fullName, email, photoUri)
+            val result = updateProfileUseCase(fullName, email, photoUri, address)
             if (result.isSuccess) {
                 val imageUrl = result.getOrNull()
                 _uiState.update {
                     it.copy(
                         fullName        = fullName,
                         email           = email,
+                        address         = address,
                         profileImageUrl = imageUrl ?: it.profileImageUrl
                     )
                 }

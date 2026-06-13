@@ -18,7 +18,9 @@ import kotlin.collections.map
 
 class SalesViewModel(
     private val getSellerProductsUseCase: GetSellerProductsUseCase,
-    private val deleteProductUseCase: DeleteProductUseCase
+    private val deleteProductUseCase: DeleteProductUseCase,
+    private val orderRepository: com.contoh.scentapp.domain.OrderRepository,
+    private val authRepository: com.contoh.scentapp.domain.AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SalesUiState())
@@ -33,38 +35,61 @@ class SalesViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            getSellerProductsUseCase()
-                .catch { e ->
-                    _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
-                }
-                .collect { parfumList ->
-                    val products = parfumList.map { parfum ->
-                        SalesProduct(
-                            id          = parfum.id.hashCode(),
-                            firestoreId = parfum.id,
-                            name        = parfum.name.uppercase(),
-                            aromaFamily = parfum.olfactoryFamily.uppercase(),
-                            volume      = "${parfum.sizes.firstOrNull() ?: 50}ML",
-                            stockStatus = when {
-                                parfum.stock <= 0 -> "HABIS"
-                                parfum.stock <= 5 -> "STOK MENIPIS"
-                                else              -> "TERSEDIA"
-                            },
-                            price       = parfum.price.toInt(),
-                            stock       = parfum.stock,
-                            imageUrl    = parfum.imageUrl,
-                            cardColor   = 0xFF1A1A1A,
-                            accentColor = 0xFFD4A853
-                        )
+            launch {
+                getSellerProductsUseCase()
+                    .catch { e ->
+                        _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
                     }
-                    _uiState.update { state ->
-                        state.copy(
-                            isLoading    = false,
-                            products     = products,
-                            activeOrders = state.activeOrders
-                        )
+                    .collect { parfumList ->
+                        val products = parfumList.map { parfum ->
+                            SalesProduct(
+                                id          = parfum.id.hashCode(),
+                                firestoreId = parfum.id,
+                                name        = parfum.name.uppercase(),
+                                aromaFamily = parfum.olfactoryFamily.uppercase(),
+                                volume      = "${parfum.sizes.firstOrNull() ?: 50}ML",
+                                stockStatus = when {
+                                    parfum.stock <= 0 -> "HABIS"
+                                    parfum.stock <= 5 -> "STOK MENIPIS"
+                                    else              -> "TERSEDIA"
+                                },
+                                price       = parfum.price.toInt(),
+                                stock       = parfum.stock,
+                                imageUrl    = parfum.imageUrl,
+                                cardColor   = 0xFF1A1A1A,
+                                accentColor = 0xFFD4A853
+                            )
+                        }
+                        _uiState.update { state ->
+                            state.copy(
+                                isLoading    = false,
+                                products     = products
+                            )
+                        }
                     }
+            }
+            
+            launch {
+                val uid = authRepository.currentUserId
+                if (uid != null) {
+                    orderRepository.getSellerOrders(uid)
+                        .catch { /* Handle error silently or update state */ }
+                        .collect { orders ->
+                            val activeOrders = orders.map { 
+                                ActiveOrder(
+                                    orderId = it.id, 
+                                    buyerName = "Pembeli #${it.buyerId.take(5)}", 
+                                    itemCount = it.items.size, 
+                                    totalPrice = it.totalPrice, 
+                                    status = it.status,
+                                    paymentMethod = it.paymentMethod,
+                                    noResi = ""
+                                )
+                            }
+                            _uiState.update { it.copy(activeOrders = activeOrders) }
+                        }
                 }
+            }
         }
     }
 

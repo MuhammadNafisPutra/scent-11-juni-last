@@ -28,11 +28,15 @@ class ShippingViewModel(
     }
 
     private fun fetchDynamicShippingCosts() {
-        val destinationId = shippingRepository.selectedDestinationCityId ?: return
+        val destinationId = shippingRepository.selectedDestinationCityId
+        if (destinationId == null) {
+            _shippingOptions.value = emptyList()
+            return
+        }
         // We set Banjarmasin as origin. Banjarmasin ID in BinderByte depends on the API. 
         // As a fallback, we will just pass "Banjarmasin" as string, or if it requires ID, we use a placeholder ID like "43"
         // In this implementation we will try using the destination ID and "Banjarmasin".
-        val originId = "Banjarmasin" // You can adjust this if exact ID is known.
+        val originId = "city_63.71" // You can adjust this if exact ID is known.
         
         viewModelScope.launch {
             _isLoading.value = true
@@ -55,15 +59,14 @@ class ShippingViewModel(
                         if (result.isSuccess) {
                             val details = result.getOrNull()
                             val firstDetail = details?.firstOrNull()
-                            val firstPrice = firstDetail?.cost?.firstOrNull()
-                            
-                            if (firstPrice != null) {
+
+                            if (firstDetail != null) {
                                 ShippingOption(
                                     id = courier.first,
                                     name = courier.second,
                                     badge = "REGULAR",
-                                    estimasi = "Estimasi: ${firstPrice.etd}",
-                                    price = firstPrice.value,
+                                    estimasi = "Estimasi: ${firstDetail.estimated}",
+                                    price = (firstDetail.price.toLongOrNull() ?: 0L).div(1000).toInt(),
                                     iconType = if (courier.first == "jnt") "truck" else if (courier.first == "sicepat") "lightning" else "plane"
                                 )
                             } else null

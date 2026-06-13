@@ -1,4 +1,4 @@
-﻿package com.contoh.scentapp.domain.model
+package com.contoh.scentapp.domain.model
 
 data class Parfum(
     val id: String = "",
@@ -19,8 +19,8 @@ data class Parfum(
     val avgSillage: Float = 0f,
     val avgProjection: Float = 0f,
     val reviewCount: Int = 0,
-    val isDecantAvailable: Boolean = false,
-    val isLimitedDrop: Boolean = false,
+    val decantAvailable: Boolean = false,
+    val limitedDrop: Boolean = false,
     val usage: String = "",          // "SIANG", "MALAM", atau "KEDUANYA"
     val createdAt: Long = 0L
 )

@@ -128,7 +128,7 @@ private fun FilterPhase(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text  = "âœ¦",
+                        text  = "✦",
                         style = MaterialTheme.typography.displayLarge.copy(color = MaterialTheme.colorScheme.outlineVariant)
                     )
                     Spacer(Modifier.height(16.dp))
@@ -222,7 +222,7 @@ private fun FilterPhase(
 private fun ResultsPhase(
     uiState        : com.contoh.scentapp.ui.state.SearchUiState,
     onBack         : () -> Unit,
-    onProductClick : (String) -> Unit,  // â† String
+    onProductClick : (String) -> Unit,  // ← String
     onFavToggle    : (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -281,7 +281,7 @@ private fun ResultsPhase(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text  = "âœ¦",
+                                text  = "✦",
                                 style = MaterialTheme.typography.displayLarge.copy(color = MaterialTheme.colorScheme.outlineVariant)
                             )
                             Spacer(Modifier.height(16.dp))
@@ -336,7 +336,7 @@ private fun FilterBadge(label: String) {
 @Composable
 private fun SearchProductRow(
     products       : List<Product>,
-    onProductClick : (String) -> Unit,  // â† String
+    onProductClick : (String) -> Unit,  // ← String
     onFavToggle    : (Int) -> Unit,
     modifier       : Modifier = Modifier
 ) {
@@ -347,7 +347,7 @@ private fun SearchProductRow(
         products.forEach { product ->
             SearchProductCard(
                 product     = product,
-                onClick     = { onProductClick(product.firestoreId) },  // â† firestoreId
+                onClick     = { onProductClick(product.firestoreId) },  // ← firestoreId
                 onFavToggle = { onFavToggle(product.id) },
                 modifier    = Modifier.weight(1f)
             )

@@ -140,7 +140,7 @@ fun OrderHistoryScreen(
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Top Bar ───────────────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth().statusBarsPadding()
                     .padding(horizontal = 20.dp, vertical = 16.dp),
@@ -154,7 +154,7 @@ fun OrderHistoryScreen(
                 Spacer(Modifier.size(24.dp))
             }
 
-            // â”€â”€ Tab Filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Tab Filter ────────────────────────────────────────────────────
             LazyRow(
                 contentPadding         = PaddingValues(horizontal = 20.dp),
                 horizontalArrangement  = Arrangement.spacedBy(8.dp),
@@ -192,7 +192,7 @@ fun OrderHistoryScreen(
                 }
             }
 
-            // â”€â”€ Order List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Order List ────────────────────────────────────────────────────
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = ScentGold)
@@ -256,7 +256,7 @@ private fun OrderHistoryCard(order: OrderHistoryDisplay, onClick: () -> Unit) {
                 Text("#SCNT-${order.id}", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 1.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(3.dp))
                 Text(order.productName, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 15.sp), color = MaterialTheme.colorScheme.onBackground)
-                Text("${order.volume} â€¢ ${order.paymentMethod}", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 11.sp))
+                Text("${order.volume} • ${order.paymentMethod}", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 11.sp))
             }
         }
 

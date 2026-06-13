@@ -17,7 +17,7 @@ interface AuthRepository {
     suspend fun register(email: String, password: String, fullName: String): Result<User>
     suspend fun logout()
     suspend fun getCurrentUser(): User?
-    suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit> // âœ… BARU
+    suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit> // ✅ BARU
 }
 
 interface ProductRepository {

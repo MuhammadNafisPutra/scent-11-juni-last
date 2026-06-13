@@ -50,6 +50,9 @@ fun SalesScreen(
     // State untuk dialog konfirmasi hapus
     var deleteConfirmProductId by remember { mutableStateOf<Int?>(null) }
     var deleteConfirmProductName by remember { mutableStateOf("") }
+    
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearching by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         LazyColumn(
@@ -211,14 +214,42 @@ fun SalesScreen(
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, fontSize = 20.sp),
                         color = MaterialTheme.colorScheme.onBackground
                     )
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        if (isSearching) {
+                            BasicTextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
+                                cursorBrush = SolidColor(ScentGold),
+                                singleLine = true,
+                                modifier = Modifier
+                                    .width(120.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                decorationBox = { inner ->
+                                    if (searchQuery.isEmpty()) Text("Cari...", style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)))
+                                    inner()
+                                }
+                            )
+                        }
                         Icon(Icons.Default.FilterList, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), modifier = Modifier.size(22.dp))
-                        Icon(Icons.Default.Search,     null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), modifier = Modifier.size(22.dp))
+                        Icon(
+                            if (isSearching) Icons.Default.Close else Icons.Default.Search, 
+                            null, 
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), 
+                            modifier = Modifier.size(22.dp).clickable { 
+                                isSearching = !isSearching
+                                if (!isSearching) searchQuery = "" 
+                            }
+                        )
                     }
                 }
             }
+            
+            val filteredProducts = if (searchQuery.isBlank()) uiState.products else uiState.products.filter { it.name.contains(searchQuery, ignoreCase = true) }
 
-            if (uiState.products.isEmpty() && !uiState.isLoading) {
+            if (filteredProducts.isEmpty() && !uiState.isLoading) {
                 item(key = "koleksi_empty") {
                     Box(
                         modifier = Modifier
@@ -252,7 +283,7 @@ fun SalesScreen(
                 }
             }
 
-            items(items = uiState.products, key = { "sales_product_${it.id}" }) { product ->
+            items(items = filteredProducts, key = { "sales_product_${it.id}" }) { product ->
                 SalesProductItem(
                     product  = product,
                     onEdit   = { onEditProduct(product.firestoreId) },
@@ -279,7 +310,7 @@ fun SalesScreen(
         )
     }
 
-    // â”€â”€ Dialog Konfirmasi Hapus â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Dialog Konfirmasi Hapus ───────────────────────────────────────────────
     deleteConfirmProductId?.let { productId ->
         AlertDialog(
             onDismissRequest = { deleteConfirmProductId = null },
@@ -328,7 +359,7 @@ fun SalesScreen(
     }
 }
 
-// â”€â”€ ResiInputDialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ResiInputDialog ───────────────────────────────────────────────────────────
 
 @Composable
 private fun ResiInputDialog(orderId: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
@@ -399,7 +430,7 @@ private fun ResiInputDialog(orderId: String, onConfirm: (String) -> Unit, onDism
     )
 }
 
-// â”€â”€ StatCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── StatCard ──────────────────────────────────────────────────────────────────
 
 @Composable
 private fun StatCard(label: String, value: String, subLabel: String = "", isLarge: Boolean) {
@@ -438,7 +469,7 @@ private fun StatCard(label: String, value: String, subLabel: String = "", isLarg
     }
 }
 
-// â”€â”€ SalesProductItem â€” dengan AsyncImage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── SalesProductItem — dengan AsyncImage ─────────────────────────────────────
 
 @Composable
 private fun SalesProductItem(
@@ -498,7 +529,7 @@ private fun SalesProductItem(
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                "${product.aromaFamily} â€¢ ${product.volume} â€¢ ${product.stockStatus}",
+                "${product.aromaFamily} • ${product.volume} • ${product.stockStatus}",
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = if (product.stockStatus == "STOK MENIPIS")
                         Color(0xFFD4A853)
@@ -542,7 +573,7 @@ private fun BottleIllustration(product: SalesProduct) {
     }
 }
 
-// â”€â”€ ActiveOrderCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ActiveOrderCard ───────────────────────────────────────────────────────────
 
 @Composable
 private fun ActiveOrderCard(
@@ -584,7 +615,7 @@ private fun ActiveOrderCard(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "${order.buyerName} â€¢ ${order.itemCount} Item",
+                    "${order.buyerName} • ${order.itemCount} Item",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp),
                     color = MaterialTheme.colorScheme.onBackground
                 )

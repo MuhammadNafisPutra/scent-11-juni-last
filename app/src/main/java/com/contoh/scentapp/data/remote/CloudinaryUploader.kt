@@ -62,7 +62,7 @@ object CloudinaryUploader {
                 ?: return Result.failure(Exception("Response kosong dari Cloudinary"))
 
             if (!response.isSuccessful) {
-                return Result.failure(Exception("Upload gagal: HTTP ${response.code} â€” $responseBody"))
+                return Result.failure(Exception("Upload gagal: HTTP ${response.code} — $responseBody"))
             }
 
             val json = JSONObject(responseBody)

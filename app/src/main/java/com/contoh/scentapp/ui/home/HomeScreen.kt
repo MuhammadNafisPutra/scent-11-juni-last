@@ -39,7 +39,7 @@
 
     @Composable
     fun HomeScreen(
-        onProductClick : (String) -> Unit = {},  // â† String (firestoreId)
+        onProductClick : (String) -> Unit = {},  // ← String (firestoreId)
         onSearchClick  : () -> Unit       = {},
         viewModel      : HomeViewModel    = viewModel(factory = com.contoh.scentapp.di.ViewModelFactory.homeFactory())
     ) {
@@ -88,7 +88,7 @@
         uiState          : HomeUiState,
         listState        : LazyListState,
         onSearchClick    : () -> Unit,
-        onProductClick   : (String) -> Unit,  // â† String
+        onProductClick   : (String) -> Unit,  // ← String
         onFavoriteToggle : (Int) -> Unit
     ) {
         LazyColumn(
@@ -288,7 +288,7 @@
     @Composable
     private fun ProductRow(
         products         : List<Product>,
-        onProductClick   : (String) -> Unit,  // â† String
+        onProductClick   : (String) -> Unit,  // ← String
         onFavoriteToggle : (Int) -> Unit,
         modifier         : Modifier = Modifier
     ) {
@@ -299,7 +299,7 @@
             products.forEach { product ->
                 ProductCard(
                     product          = product,
-                    onClick          = { onProductClick(product.firestoreId) },  // â† firestoreId
+                    onClick          = { onProductClick(product.firestoreId) },  // ← firestoreId
                     onFavoriteToggle = { onFavoriteToggle(product.id) },
                     modifier         = Modifier.weight(1f)
                 )

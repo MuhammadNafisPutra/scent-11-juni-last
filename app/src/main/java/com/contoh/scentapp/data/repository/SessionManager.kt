@@ -9,7 +9,7 @@ class SessionManager private constructor(context: Context) {
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("ScentPrefs", Context.MODE_PRIVATE)
 
-    // â”€â”€ Dark Mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Dark Mode ──────────────────────────────────────────────
     private val _isDarkMode = MutableStateFlow(sharedPreferences.getBoolean("KEY_DARK_MODE", true))
     val isDarkMode: StateFlow<Boolean> = _isDarkMode
 
@@ -18,7 +18,7 @@ class SessionManager private constructor(context: Context) {
         _isDarkMode.value = enabled
     }
 
-    // â”€â”€ Session / Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Session / Login ────────────────────────────────────────
     fun saveSession(email: String) {
         sharedPreferences.edit()
             .putString("KEY_EMAIL", email)

@@ -144,7 +144,7 @@ fun DetailScreen(
     }
 }
 
-// â”€â”€ TopBar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── TopBar ────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun DetailTopBar(onBack: () -> Unit, onCartClick: () -> Unit) {
@@ -178,7 +178,7 @@ private fun DetailTopBar(onBack: () -> Unit, onCartClick: () -> Unit) {
     }
 }
 
-// â”€â”€ ProductImageSection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ProductImageSection ───────────────────────────────────────────────────────
 
 @Composable
 private fun ProductImageSection(product: Product, modifier: Modifier = Modifier) {
@@ -275,7 +275,7 @@ private fun DetailBottleIllustration(product: Product) {
     }
 }
 
-// â”€â”€ ProductInfoSection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ProductInfoSection ────────────────────────────────────────────────────────
 
 @Composable
 private fun ProductInfoSection(product: Product, modifier: Modifier = Modifier) {
@@ -312,7 +312,7 @@ private fun ProductInfoSection(product: Product, modifier: Modifier = Modifier) 
     }
 }
 
-// â”€â”€ SizeSelectorSection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── SizeSelectorSection ───────────────────────────────────────────────────────
 
 @Composable
 private fun SizeSelectorSection(
@@ -362,7 +362,7 @@ private fun SizeSelectorSection(
     }
 }
 
-// â”€â”€ AddToCartButton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── AddToCartButton ───────────────────────────────────────────────────────────
 
 @Composable
 private fun AddToCartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -384,7 +384,7 @@ private fun AddToCartButton(onClick: () -> Unit, modifier: Modifier = Modifier) 
     }
 }
 
-// â”€â”€ ReviewsHeader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ReviewsHeader ─────────────────────────────────────────────────────────────
 
 @Composable
 private fun ReviewsHeader(product: Product, onWriteReview: () -> Unit = {}, modifier: Modifier = Modifier) {
@@ -426,7 +426,7 @@ private fun ReviewsHeader(product: Product, onWriteReview: () -> Unit = {}, modi
     }
 }
 
-// â”€â”€ ReviewCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ReviewCard ────────────────────────────────────────────────────────────────
 
 @Composable
 private fun ReviewCard(review: Review, modifier: Modifier = Modifier) {

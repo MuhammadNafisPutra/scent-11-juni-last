@@ -17,12 +17,12 @@ interface BinderByteApiService {
         @Query("id_provinsi") idProvinsi: String
     ): Response<BinderByteBaseResponse<List<CityDto>>>
 
-    @GET("cost")
+    @GET("v1/cost")
     suspend fun getShippingCost(
         @Query("api_key") apiKey: String,
         @Query("courier") courier: String,
         @Query("origin") origin: String,
         @Query("destination") destination: String,
         @Query("weight") weight: Int
-    ): Response<BinderByteBaseResponse<List<ShippingCostDto>>>
+    ): Response<ShippingCostResponseDto>
 }

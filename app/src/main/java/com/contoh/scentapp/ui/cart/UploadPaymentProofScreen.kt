@@ -42,7 +42,7 @@ fun UploadPaymentProofScreen(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(bottom = 110.dp)
         ) {
-            // â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Top Bar ───────────────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth().statusBarsPadding()
                     .padding(horizontal = 20.dp, vertical = 16.dp),
@@ -64,7 +64,7 @@ fun UploadPaymentProofScreen(
 
                 Spacer(Modifier.height(28.dp))
 
-                // â”€â”€ Rekening Tujuan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                // ── Rekening Tujuan ───────────────────────────────────────────
                 Column(
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
                         .background(MaterialTheme.colorScheme.surface).border(0.5.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
@@ -81,7 +81,7 @@ fun UploadPaymentProofScreen(
 
                 Spacer(Modifier.height(24.dp))
 
-                // â”€â”€ Upload Area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                // ── Upload Area ───────────────────────────────────────────────
                 Text("FOTO BUKTI PEMBAYARAN", style = MaterialTheme.typography.labelSmall.copy(
                     fontSize = 10.sp, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)))
                 Spacer(Modifier.height(10.dp))
@@ -129,7 +129,7 @@ fun UploadPaymentProofScreen(
                             Text("Tap untuk pilih foto", style = MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Medium))
                             Spacer(Modifier.height(4.dp))
-                            Text("JPG, PNG â€” maks 5MB", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)))
+                            Text("JPG, PNG — maks 5MB", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)))
                         }
                     }
                 }
@@ -155,7 +155,7 @@ fun UploadPaymentProofScreen(
             }
         }
 
-        // â”€â”€ Bottom Submit Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Bottom Submit Button ──────────────────────────────────────────────
         Box(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background).padding(horizontal = 20.dp, vertical = 16.dp).navigationBarsPadding()

@@ -183,7 +183,7 @@ class ProductRepository private constructor() {
             text        = "\"Vetiver paling realistis yang pernah saya temui. Ini tidak " +
                     "tercium seperti parfum; ini tercium seperti sebuah tempat. " +
                     "Spesifiknya, sebuah perpustakaan tua di tengah hutan yang lembab. " +
-                    "Ketahanannya luar biasaâ€”saya masih bisa mencium aroma dasarnya " +
+                    "Ketahanannya luar biasa—saya masih bisa mencium aroma dasarnya " +
                     "di sweter saya tiga hari kemudian.\"",
             avatarColor = 0xFF1A2535,
             rating      = 5f,

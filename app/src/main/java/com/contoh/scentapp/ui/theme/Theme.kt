@@ -50,7 +50,7 @@ fun ScentAppTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as AppCompatActivity).window // âœ… Ganti ke AppCompatActivity
+            val window = (view.context as AppCompatActivity).window // ✅ Ganti ke AppCompatActivity
             @Suppress("DEPRECATION")
             if (Build.VERSION.SDK_INT < 35) {
                 window.statusBarColor = colorScheme.background.toArgb()

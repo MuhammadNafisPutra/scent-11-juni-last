@@ -2,7 +2,7 @@
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity  // âœ… Ganti import ini
+import androidx.appcompat.app.AppCompatActivity  // ✅ Ganti import ini
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +11,7 @@ import com.contoh.scentapp.data.repository.SessionManager
 import com.contoh.scentapp.ui.navigation.AppNavigation
 import com.contoh.scentapp.ui.theme.ScentAppTheme
 
-class MainActivity : AppCompatActivity() {  // âœ… Ganti ini
+class MainActivity : AppCompatActivity() {  // ✅ Ganti ini
 
     companion object {
         var isDarkModeState by mutableStateOf(value = true)

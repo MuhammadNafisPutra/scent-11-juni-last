@@ -70,7 +70,7 @@ class DetailViewModel(
                             price = "/ Rp${"%,d".format(parfum.price).replace(',', '.')}"
                         )
                     ).apply {
-                        if (parfum.isDecantAvailable && parfum.decantPrice > 0) {
+                        if (parfum.decantAvailable && parfum.decantPrice > 0) {
                             add(
                                 SizeOption(
                                     id    = "decant",
